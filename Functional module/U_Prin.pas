@@ -1,6 +1,6 @@
 {$N+}
 
-{Handler unit}
+{Printer unit}
 Unit U_Prin;
 
 Interface
