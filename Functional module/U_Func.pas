@@ -71,8 +71,9 @@ Implementation
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
             dispose(mSources[i], done);
         end;
-        dispose(mBuffer);
-        dispose(mHandler);
+        dispose(mPrinter, done);
+        dispose(mBuffer, done);
+        dispose(mHandler, done);
     end;
 
     procedure FunctionalModule.createSources;
@@ -140,7 +141,7 @@ Implementation
     procedure FunctionalModule.start;
     var intensity, probabilityOfFailure, averageAppsInBuffer, averageTimeInBuffer1,averageTimeInBuffer2 : double;
     begin
-        mPrinter^.printSMOStats(self);
+        mPrinter^.printSMOStats(mDeltaIntensity, mMinIntensity, mMaxIntensity, mKMIN);
 
         intensity := mMinIntensity;
         while intensity < mMaxIntensity + mDeltaIntensity do begin

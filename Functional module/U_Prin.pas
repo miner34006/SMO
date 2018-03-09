@@ -4,7 +4,7 @@
 Unit U_Prin;
 
 Interface
-    uses crt, U_Func;
+    uses crt;
 
     Type Printer = object
         public
@@ -13,7 +13,7 @@ Interface
 
             procedure printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1, 
                                             averageTimeInBuffer2, averageAppsInBuffer: Double);
-            procedure printSMOStats(funcModule : PFunctionalModule);
+            procedure printSMOStats(deltaIntensity, minIntensity, maxIntensity : Double; KMIN : Longint);
 
         private
             mOutput : Text;
@@ -45,12 +45,12 @@ Implementation
         writeln(mOutput, '');
     end;
 
-    procedure Printer.printSMOStats(funcModule : PFunctionalModule);
+    procedure Printer.printSMOStats(deltaIntensity, minIntensity, maxIntensity : Double; KMIN : Longint);
     begin
-        writeln(mOutput, 'KMIN                    = ', funcModule^.getKMIN:5);
-        writeln(mOutput, 'DELTA LAMBDA            = ', funcModule^.getDeltaIntensity:4:2);
-        writeln(mOutput, 'MIN LAMBDA (1st source) = ', funcModule^.getMinIntensity:4:2);
-        writeln(mOutput, 'MAX LAMBDA (1st source) = ', funcModule^.getMaxIntensity:4:2);
+        writeln(mOutput, 'KMIN                    = ', KMIN:5);
+        writeln(mOutput, 'DELTA LAMBDA            = ', deltaIntensity:4:2);
+        writeln(mOutput, 'MIN LAMBDA (1st source) = ', minIntensity:4:2);
+        writeln(mOutput, 'MAX LAMBDA (1st source) = ', maxIntensity:4:2);
         writeln(mOutput, '');
     end;
 end.
