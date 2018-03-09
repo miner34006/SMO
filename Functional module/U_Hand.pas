@@ -1,10 +1,10 @@
 {$N+}
 
 {Appliance unit}
-Unit APU;
+Unit U_Hand;
 
 Interface
-    uses crt, TBU;
+    uses crt, U_Time;
 
     Type Appliance = object
         public

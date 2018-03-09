@@ -1,7 +1,7 @@
 {$N+}
 
 {TimeBehaviour unit}
-Unit TBU;
+Unit U_Time;
 
 Interface
     uses crt;

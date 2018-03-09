@@ -1,7 +1,7 @@
 {$N+}
 
 {Application unit}
-Unit APP;
+Unit U_Appl;
 
 Interface
     uses crt;
