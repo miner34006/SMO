@@ -29,7 +29,7 @@ Interface
 
             function getTheEarliestEvent : Integer;
             function countProbabilityOfFailure : Double;
-            function countAverageAppsInBuffer : Double;
+            function countAverageAppsInBuffer(sourceIndex : Integer) : Double;
             function countaAverageTimeInBuffer(sourceIndex : Integer) : Double;
 
             procedure handleCreationOfNewApplication(sourceIndex : Integer);
@@ -116,11 +116,17 @@ Implementation
         countProbabilityOfFailure := totalRejected / totalApplications;
     end;
 
-    function FunctionalModule.countAverageAppsInBuffer : Double;
+    function FunctionalModule.countAverageAppsInBuffer(sourceIndex : Integer) : Double;
+    var totalNumberOfApplications: Longint;
+        i : Integer;
     begin
-        countAverageAppsInBuffer := mSources[0]^.getNumberOfReceivedApplications / 
-                (mSources[0]^.getNumberOfReceivedApplications +
-                    mSources[1]^.getNumberOfReceivedApplications);
+        totalNumberOfApplications := 0;
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            totalNumberOfApplications := totalNumberOfApplications + mSources[i]^.getNumberOfReceivedApplications;
+        end;
+
+        countAverageAppsInBuffer := mSources[sourceIndex]^.getNumberOfReceivedApplications / 
+                                        totalNumberOfApplications
     end;
 
     function FunctionalModule.countaAverageTimeInBuffer(sourceIndex : Integer): Double;
@@ -147,7 +153,7 @@ Implementation
             end;
 
             probabilityOfFailure := countProbabilityOfFailure;
-            averageAppsInBuffer := countAverageAppsInBuffer;
+            averageAppsInBuffer := countAverageAppsInBuffer(0);
             averageTimeInBuffer1 := countaAverageTimeInBuffer(0);
             averageTimeInBuffer2 := countaAverageTimeInBuffer(1);
         
