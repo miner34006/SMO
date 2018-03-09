@@ -117,16 +117,17 @@ Implementation
     end;
 
     function FunctionalModule.countAverageAppsInBuffer(sourceIndex : Integer) : Double;
-    var totalNumberOfApplications: Longint;
+    var totalNumberOfReceivedApplications: Longint;
         i : Integer;
     begin
-        totalNumberOfApplications := 0;
+        totalNumberOfReceivedApplications := 0;
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
-            totalNumberOfApplications := totalNumberOfApplications + mSources[i]^.getNumberOfReceivedApplications;
+            totalNumberOfReceivedApplications := totalNumberOfReceivedApplications +
+                                                    mSources[i]^.getNumberOfReceivedApplications;
         end;
 
         countAverageAppsInBuffer := mSources[sourceIndex]^.getNumberOfReceivedApplications / 
-                                        totalNumberOfApplications
+                                        totalNumberOfReceivedApplications
     end;
 
     function FunctionalModule.countAverageTimeInBuffer(sourceIndex : Integer): Double;
