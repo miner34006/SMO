@@ -12,7 +12,7 @@ Interface
             destructor done;
             procedure zeroData;
             function addApplication(app : PApplication) : Boolean;
-            function hasApplications: Boolean;
+            function empty: Boolean;
             function removeApplication : PApplication;
 
         private
@@ -59,9 +59,9 @@ Implementation
         addApplication := true;
     end;
 
-    function Buffer.hasApplications: Boolean;
+    function Buffer.empty: Boolean;
     begin
-        hasApplications := not (mFreeSlots = mMaxSize);
+        empty := (mFreeSlots = mMaxSize);
     end;
 
     function Buffer.removeApplication : PApplication;

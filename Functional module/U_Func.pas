@@ -205,7 +205,7 @@ Implementation
     procedure FunctionalModule.handleEndOfHandlerWork;
     var app : PApplication;
     begin
-        if (mBuffer^.hasApplications) then begin
+        if (not mBuffer^.empty) then begin
             app := mBuffer^.removeApplication;
             mSources[app^.getSourceNumber]^.increaseNumberOfReceivedApplications;
             if app^.getTimeOfCreation < mHandler^.getFinishTime then begin
