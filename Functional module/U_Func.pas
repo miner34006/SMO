@@ -4,7 +4,7 @@
 Unit U_Func;
 
 Interface
-    uses crt, U_Time, U_Sour, U_Buff, U_Hand, U_Appl;
+    uses crt, U_Time, U_Sour, U_Buff, U_Hand, U_Appl, U_Prin;
 
     const NUMBER_OF_SOURCES = 2;
     Type SourceArray = array[0..NUMBER_OF_SOURCES - 1] of PSource;
@@ -19,31 +19,35 @@ Interface
             mSources   : SourceArray; {Sources of the SMO}
             mBuffer    : PBuffer;     {SMO Buffer}
             mHandler : PHandler;  {SMO Handler}
+            mPrinter : PPrinter;
 
             mKMIN : Longint;
             mMinIntensity : Double;
             mMaxIntensity : Double;
             mDeltaIntensity : Double;
 
-            mOutput : Text;
+            function getKMIN : Longint;
+            function getMinIntensity : Double;
+            function getMaxIntensity : Double;
+            function getDeltaIntensity : Double;
 
-            function getTheEarliestEvent : Integer;
+
             function countProbabilityOfFailure : Double;
             function countAverageAppsInBuffer(sourceIndex : Integer) : Double;
             function countAverageTimeInBuffer(sourceIndex : Integer) : Double;
 
-            procedure handleCreationOfNewApplication(sourceIndex : Integer);
-            procedure handleEndOfHandlerWork;
-
             procedure createSources;
             procedure createBuffer;
             procedure createAppliannce;
+
+            function getTheEarliestEvent : Integer;
             procedure doOneClockCycle;
             procedure zeroData;
-            procedure printSMOStats;
-            procedure printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1, 
-                                            averageTimeInBuffer2, averageAppsInBuffer: Double);
+            procedure handleCreationOfNewApplication(sourceIndex : Integer);
+            procedure handleEndOfHandlerWork;
     end;
+
+    Type PFunctionalModule = ^FunctionalModule;
 
 
 Implementation
@@ -54,8 +58,7 @@ Implementation
         mMaxIntensity := maxIntensity;
         mDeltaIntensity := deltaIntensity;
 
-        assign(mOutput,'output.txt');
-        rewrite(mOutput);
+        mPrinter := new(PPrinter, init);
 
         createSources;
         createBuffer;
@@ -65,8 +68,6 @@ Implementation
     destructor FunctionalModule.done;
     var i: Integer;
     begin
-        close(mOutput);
-
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
             dispose(mSources[i], done);
         end;
@@ -139,7 +140,7 @@ Implementation
     procedure FunctionalModule.start;
     var intensity, probabilityOfFailure, averageAppsInBuffer, averageTimeInBuffer1,averageTimeInBuffer2 : double;
     begin
-        printSMOStats;
+        mPrinter^.printSMOStats(self);
 
         intensity := mMinIntensity;
         while intensity < mMaxIntensity + mDeltaIntensity do begin
@@ -158,32 +159,12 @@ Implementation
             averageTimeInBuffer1 := countAverageTimeInBuffer(0);
             averageTimeInBuffer2 := countAverageTimeInBuffer(1);
         
-            printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1,
+            mPrinter^.printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1,
                                 averageTimeInBuffer2, averageAppsInBuffer);
             
             zeroData;
             intensity := intensity + mDeltaIntensity;
         end;
-    end;
-
-    procedure FunctionalModule.printSMOStats;
-    begin
-        writeln(mOutput, 'KMIN                    = ', mKMIN:5);
-        writeln(mOutput, 'DELTA LAMBDA            = ', mDeltaIntensity:4:2);
-        writeln(mOutput, 'MIN LAMBDA (1st source) = ', mMinIntensity:4:2);
-        writeln(mOutput, 'MAX LAMBDA (1st source) = ', mMaxIntensity:4:2);
-        writeln(mOutput, '');
-    end;
-
-    procedure FunctionalModule.printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1,
-                                            averageTimeInBuffer2, averageAppsInBuffer: Double);
-    begin
-        writeln(mOutput, 'Lambda = ', intensity:5:1);
-        writeln(mOutput, '    * Probability Of Failure (1st+2nd)     = ', probabilityOfFailure:8:3);
-        writeln(mOutput, '    * Average wating time (1st source)     = ', averageTimeInBuffer1:8:3);
-        writeln(mOutput, '    * Average wating time (2nd source)     = ', averageTimeInBuffer2:8:3);
-        writeln(mOutput, '    * Average apps (1st source) in Buffer  = ', averageAppsInBuffer:8:3);
-        writeln(mOutput, '');
     end;
 
     procedure FunctionalModule.handleCreationOfNewApplication(sourceIndex : Integer);
@@ -275,5 +256,25 @@ Implementation
        end;
 
         getTheEarliestEvent := eventMarker;
+    end;
+
+    function FunctionalModule.getKMIN : Longint;
+    begin
+        getKMIN := mKMIN;
+    end;
+
+    function FunctionalModule.getMinIntensity : Double;
+    begin
+        getMinIntensity := mMinIntensity;
+    end;
+
+    function FunctionalModule.getMaxIntensity : Double;
+    begin
+        getMaxIntensity := mMaxIntensity;    
+    end;
+
+    function FunctionalModule.getDeltaIntensity : Double;
+    begin
+        getDeltaIntensity := mDeltaIntensity;
     end;
 end.
