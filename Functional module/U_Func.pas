@@ -26,12 +26,6 @@ Interface
             mMaxIntensity : Double;
             mDeltaIntensity : Double;
 
-            function getKMIN : Longint;
-            function getMinIntensity : Double;
-            function getMaxIntensity : Double;
-            function getDeltaIntensity : Double;
-
-
             function countProbabilityOfFailure : Double;
             function countAverageAppsInBuffer(sourceIndex : Integer) : Double;
             function countAverageTimeInBuffer(sourceIndex : Integer) : Double;
@@ -257,25 +251,5 @@ Implementation
        end;
 
         getTheEarliestEvent := eventMarker;
-    end;
-
-    function FunctionalModule.getKMIN : Longint;
-    begin
-        getKMIN := mKMIN;
-    end;
-
-    function FunctionalModule.getMinIntensity : Double;
-    begin
-        getMinIntensity := mMinIntensity;
-    end;
-
-    function FunctionalModule.getMaxIntensity : Double;
-    begin
-        getMaxIntensity := mMaxIntensity;    
-    end;
-
-    function FunctionalModule.getDeltaIntensity : Double;
-    begin
-        getDeltaIntensity := mDeltaIntensity;
     end;
 end.
