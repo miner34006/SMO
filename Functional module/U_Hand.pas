@@ -1,12 +1,12 @@
 {$N+}
 
-{Appliance unit}
+{Handler unit}
 Unit U_Hand;
 
 Interface
     uses crt, U_Time;
 
-    Type Appliance = object
+    Type Handler = object
         public
             constructor init(intensity : Double; var timeBehaviour : PTimeBehaviour);
             destructor done;
@@ -23,11 +23,11 @@ Interface
             mTimeBehaviour : PTimeBehaviour; {Law of time generation}        
     end;
 
-    Type PAppliance = ^Appliance;
+    Type PHandler = ^Handler;
 
 
 Implementation
-    constructor Appliance.init(intensity : Double; var timeBehaviour : PTimeBehaviour);
+    constructor Handler.init(intensity : Double; var timeBehaviour : PTimeBehaviour);
     begin
         mCanWork := false;
         mFinishTime := 0;
@@ -35,32 +35,32 @@ Implementation
         mTimeBehaviour := timeBehaviour;
     end;
 
-    destructor Appliance.done;
+    destructor Handler.done;
     begin
         dispose(mTimeBehaviour);
     end;
 
-    procedure Appliance.zeroData;
+    procedure Handler.zeroData;
     begin
         mFinishTime := 0;
     end;
 
-    function Appliance.canWork: Boolean;
+    function Handler.canWork: Boolean;
     begin
         canWork := mCanWork;
     end;
 
-    procedure Appliance.changeWorkStatus(status : Boolean);
+    procedure Handler.changeWorkStatus(status : Boolean);
     begin
         mCanWork := status;
     end;
 
-    function Appliance.getFinishTime: Double;
+    function Handler.getFinishTime: Double;
     begin
         getFinishTime := mFinishTime;
     end;
 
-    procedure Appliance.generateFinishTime(acceptTime : Double);
+    procedure Handler.generateFinishTime(acceptTime : Double);
     begin
         mFinishTime := acceptTime + mTimeBehaviour^.countTime(mIntensity);
     end;

@@ -29,8 +29,8 @@ Interface
         private
             mPostTime : Double; {The time of the last post of the application}
             mIntensity : Double; {Intensity of the source (lambda)}
-            mNumberOfReceivedApplications : Longint; {Number of requests accepted by the Appliance (KOBR)}
-            mNumberOfRejectedApplications : Longint; {Number of applications rejected by the Appliance (KOTK)}
+            mNumberOfReceivedApplications : Longint; {Number of requests accepted by the Handler (KOBR)}
+            mNumberOfRejectedApplications : Longint; {Number of applications rejected by the Handler (KOTK)}
             mTotalNumberOfApplications : Longint; {Total Nnumber of applications (KOL)}
             mTimeInBuffer : Double; {Time of applications in the buffer}
             mTimeBehaviour : PTimeBehaviour; {Law of time generation}

@@ -18,7 +18,7 @@ Interface
         private
             mSources   : SourceArray; {Sources of the SMO}
             mBuffer    : PBuffer;     {SMO Buffer}
-            mAppliance : PAppliance;  {SMO Appliance}
+            mHandler : PHandler;  {SMO Handler}
 
             mKMIN : Longint;
             mMinIntensity : Double;
@@ -33,7 +33,7 @@ Interface
             function countaAverageTimeInBuffer(sourceIndex : Integer) : Double;
 
             procedure handleCreationOfNewApplication(sourceIndex : Integer);
-            procedure handleEndOfApplianceWork;
+            procedure handleEndOfHandlerWork;
 
             procedure createSources;
             procedure createBuffer;
@@ -71,7 +71,7 @@ Implementation
             dispose(mSources[i], done);
         end;
         dispose(mBuffer);
-        dispose(mAppliance);
+        dispose(mHandler);
     end;
 
     procedure FunctionalModule.createSources;
@@ -100,7 +100,7 @@ Implementation
     begin
         intensity := 1;
         timeBehaviour := new(PSimple, init);
-        mAppliance := new(PAppliance, init(intensity, timeBehaviour));
+        mHandler := new(PHandler, init(intensity, timeBehaviour));
     end;
 
     function FunctionalModule.countProbabilityOfFailure : Double;
@@ -192,26 +192,26 @@ Implementation
             dispose(app);
         end;
         mSources[sourceIndex]^.postApplication;
-        mAppliance^.changeWorkStatus(true);
+        mHandler^.changeWorkStatus(true);
     end;
 
-    procedure FunctionalModule.handleEndOfApplianceWork;
+    procedure FunctionalModule.handleEndOfHandlerWork;
     var app : PApplication;
     begin
         if (mBuffer^.hasApplications) then begin
             app := mBuffer^.removeApplication;
             mSources[app^.getSourceNumber]^.increaseNumberOfReceivedApplications;
-            if app^.getTimeOfCreation < mAppliance^.getFinishTime then begin
-                {Application was waiting appliance in Buffer}
-                mSources[app^.getSourceNumber]^.increeseTimeInBuffer(mAppliance^.getFinishTime - app^.getTimeOfCreation);
-                mAppliance^.generateFinishTime(mAppliance^.getFinishTime);
+            if app^.getTimeOfCreation < mHandler^.getFinishTime then begin
+                {Application was waiting Handler in Buffer}
+                mSources[app^.getSourceNumber]^.increeseTimeInBuffer(mHandler^.getFinishTime - app^.getTimeOfCreation);
+                mHandler^.generateFinishTime(mHandler^.getFinishTime);
             end else begin
-                {Application was not waiting appliance in Buffer}
-                mAppliance^.generateFinishTime(app^.getTimeOfCreation);
+                {Application was not waiting Handler in Buffer}
+                mHandler^.generateFinishTime(app^.getTimeOfCreation);
             end;
             dispose(app);
         end else begin
-            mAppliance^.changeWorkStatus(false);
+            mHandler^.changeWorkStatus(false);
         end;
     end;
 
@@ -226,8 +226,8 @@ Implementation
             {One of the sources has made the application}
             handleCreationOfNewApplication(earliestEvent);
         end else begin
-            {The Appliance finished work}
-            handleEndOfApplianceWork;
+            {The Handler finished work}
+            handleEndOfHandlerWork;
         end;
     end;
 
@@ -235,14 +235,14 @@ Implementation
     var i: Integer;
     begin
         mBuffer^.zeroData;
-        mAppliance^.zeroData;
+        mHandler^.zeroData;
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
             mSources[i]^.zeroData;
         end;
     end;
 
     function FunctionalModule.getTheEarliestEvent;
-    var applianceTime, minTime: Double;
+    var HandlerTime, minTime: Double;
         i, eventMarker: Integer;
     begin
         {Shows the earliest event:
@@ -259,11 +259,11 @@ Implementation
             end;
         end;
 
-        if (not mAppliance^.canWork) then begin
-            {The Appliance has not yet received processing orders}
+        if (not mHandler^.canWork) then begin
+            {The Handler has not yet received processing orders}
             getTheEarliestEvent := eventMarker;
             exit;
-        end else if (minTime > mAppliance^.getFinishTime) then begin
+        end else if (minTime > mHandler^.getFinishTime) then begin
             eventMarker := -1;
        end;
 
