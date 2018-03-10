@@ -18,14 +18,15 @@ Interface
         private
             mSources   : SourceArray; {Sources of the SMO}
             mBuffer    : PBuffer;     {SMO Buffer}
-            mHandler : PHandler;  {SMO Handler}
-            mPrinter : PPrinter;
+            mHandler   : PHandler;    {SMO Handler}
+            mPrinter   : PPrinter;
 
-            mKMIN : Longint;
-            mMinIntensity : Double;
-            mMaxIntensity : Double;
+            mKMIN           : Longint;
+            mMinIntensity   : Double;
+            mMaxIntensity   : Double;
             mDeltaIntensity : Double;
 
+            { TODO: вынести в отдельный класс -> StatsCalculator }
             function countProbabilityOfFailure : Double;
             function countAverageAppsInBuffer(sourceIndex : Integer) : Double;
             function countAverageTimeInBuffer(sourceIndex : Integer) : Double;
@@ -35,10 +36,10 @@ Interface
             procedure createAppliannce;
 
             function getTheEarliestEvent : Integer;
-            procedure doOneClockCycle;
-            procedure zeroData;
             procedure handleCreationOfNewApplication(sourceIndex : Integer);
             procedure handleEndOfHandlerWork;
+            procedure doOneClockCycle;
+            procedure zeroData;
     end;
 
     Type PFunctionalModule = ^FunctionalModule;
