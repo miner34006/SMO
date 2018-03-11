@@ -4,7 +4,7 @@
 Unit U_Prin;
 
 Interface
-    uses crt;
+    uses crt, U_Type;
 
     Type Printer = object
         public
@@ -13,7 +13,7 @@ Interface
 
             procedure printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1, 
                                             averageTimeInBuffer2, averageAppsInBuffer: Double);
-            procedure printSMOStats(deltaIntensity, minIntensity, maxIntensity : Double; KMIN : Longint);
+            procedure printSystemSettings(settings : SystemSettings);
 
         private
             mOutput : Text;
@@ -45,12 +45,12 @@ Implementation
         writeln(mOutput, '');
     end;
 
-    procedure Printer.printSMOStats(deltaIntensity, minIntensity, maxIntensity : Double; KMIN : Longint);
+    procedure Printer.printSystemSettings(settings : SystemSettings);
     begin
-        writeln(mOutput, 'KMIN                    = ', KMIN:5);
-        writeln(mOutput, 'DELTA LAMBDA            = ', deltaIntensity:4:2);
-        writeln(mOutput, 'MIN LAMBDA (1st source) = ', minIntensity:4:2);
-        writeln(mOutput, 'MAX LAMBDA (1st source) = ', maxIntensity:4:2);
+        writeln(mOutput, 'KMIN                    = ', settings.KMIN:5);
+        writeln(mOutput, 'DELTA LAMBDA            = ', settings.deltaIntensity:4:2);
+        writeln(mOutput, 'MIN LAMBDA (1st source) = ', settings.minIntensity:4:2);
+        writeln(mOutput, 'MAX LAMBDA (1st source) = ', settings.maxIntensity:4:2);
         writeln(mOutput, '');
     end;
 end.

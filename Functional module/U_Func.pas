@@ -4,14 +4,14 @@
 Unit U_Func;
 
 Interface
-    uses crt, U_Time, U_Sour, U_Buff, U_Hand, U_Appl, U_Prin;
+    uses crt, U_Time, U_Sour, U_Buff, U_Hand, U_Appl, U_Prin, U_Type;
 
     const NUMBER_OF_SOURCES = 2;
     Type SourceArray = array[0..NUMBER_OF_SOURCES - 1] of PSource;
 
     Type FunctionalModule = object
         public
-            constructor init(KMIN : Longint; minIntensity, maxIntensity, deltaIntensity: Double);
+            constructor init(settings : SystemSettings);
             destructor  done;
             procedure start;
         
@@ -21,10 +21,7 @@ Interface
             mHandler   : PHandler;    {SMO Handler}
             mPrinter   : PPrinter;
 
-            mKMIN           : Longint;
-            mMinIntensity   : Double;
-            mMaxIntensity   : Double;
-            mDeltaIntensity : Double;
+            mSettings  : SystemSettings;
 
             { TODO: вынести в отдельный класс -> StatsCalculator }
             function countProbabilityOfFailure : Double;
@@ -48,10 +45,10 @@ Interface
 Implementation
     constructor FunctionalModule.init(KMIN : Longint; minIntensity, maxIntensity, deltaIntensity: Double);
     begin
-        mKMIN := KMIN;
-        mMinIntensity := minIntensity;
-        mMaxIntensity := maxIntensity;
-        mDeltaIntensity := deltaIntensity;
+        mSettings.KMIN := KMIN;
+        mSettings.MinIntensity := minIntensity;
+        mSettings.MaxIntensity := maxIntensity;
+        mSettings.DeltaIntensity := deltaIntensity;
 
         mPrinter := new(PPrinter, init);
 
@@ -136,17 +133,17 @@ Implementation
     procedure FunctionalModule.start;
     var intensity, probabilityOfFailure, averageAppsInBuffer, averageTimeInBuffer1,averageTimeInBuffer2 : double;
     begin
-        mPrinter^.printSMOStats(mDeltaIntensity, mMinIntensity, mMaxIntensity, mKMIN);
+        mPrinter^.printSystemSettings(mSettings);
 
-        intensity := mMinIntensity;
-        while intensity < mMaxIntensity + mDeltaIntensity do begin
+        intensity := mSettings.minIntensity;
+        while intensity < mSettings.maxIntensity + mSettings.deltaIntensity do begin
 
             mSources[0]^.setIntensity(intensity);
             mSources[0]^.postApplication;
             mSources[1]^.postApplication;
 
-            while (mSources[0]^.getTotalNumberOfApplications < mKMIN) or 
-                  (mSources[1]^.getTotalNumberOfApplications < mKMIN) do begin
+            while (mSources[0]^.getTotalNumberOfApplications < mSettings.KMIN) or 
+                  (mSources[1]^.getTotalNumberOfApplications < mSettings.KMIN) do begin
                 doOneClockCycle;
             end;
 
@@ -159,7 +156,7 @@ Implementation
                                 averageTimeInBuffer2, averageAppsInBuffer);
             
             zeroData;
-            intensity := intensity + mDeltaIntensity;
+            intensity := intensity + mSettings.deltaIntensity;
         end;
     end;
 
