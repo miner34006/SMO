@@ -43,13 +43,9 @@ Interface
 
 
 Implementation
-    constructor FunctionalModule.init(KMIN : Longint; minIntensity, maxIntensity, deltaIntensity: Double);
+    constructor FunctionalModule.init(settings: SystemSettings);
     begin
-        mSettings.KMIN := KMIN;
-        mSettings.MinIntensity := minIntensity;
-        mSettings.MaxIntensity := maxIntensity;
-        mSettings.DeltaIntensity := deltaIntensity;
-
+        mSettings := settings;
         mPrinter := new(PPrinter, init);
 
         createSources;
