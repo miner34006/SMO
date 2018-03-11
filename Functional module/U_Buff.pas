@@ -4,38 +4,44 @@
 Unit U_Buff;
 
 Interface
-    uses crt, U_Appl;
+    uses crt, U_Appl, U_Type;
 
     Type Buffer = object
         public
-            constructor init(maxSize : Integer);
+            constructor init;
             destructor done;
-            procedure zeroData;
+
             function addApplication(app : PApplication) : Boolean;
-            function empty: Boolean;
             function removeApplication : PApplication;
 
+            function empty: Boolean;
+
+            procedure zeroData;
+
         private
-            mMaxSize : Integer; {Max buffer size}
-            mFreeSlots : Integer; {Number of free (empty) slots}
-            mBuffer : PAArray; {Array of PAplications}
+            mMaxSize      : Integer;          {Max buffer size}
+            mFreeSlots    : Integer;          {Number of free (empty) slots}
+            mApplications : ApplicationArray; {Array of PAplications}
     end;
 
     Type PBuffer = ^Buffer;
 
 
 Implementation
-    constructor Buffer.init(maxSize : Integer);
+    constructor Buffer.init;
     begin
-        mMaxSize := maxSize;
-        mFreeSlots := maxSize;
-
-        GetMem(mBuffer, SizeOf(AArray) * mMaxSize);
+        mMaxSize := BUFFER_SIZE;
+        mFreeSlots := BUFFER_SIZE;
     end;
 
     destructor Buffer.done;
+    var i : Integer;
     begin
-        FreeMem(mBuffer, SizeOf(AArray) * mMaxSize);
+        for i := 0 to mMaxSize - 1 do begin
+            if (mApplications[i] <> nil) then begin
+                dispose(mApplications[i]);
+            end;
+        end;
     end;
 
     procedure Buffer.zeroData;
@@ -43,7 +49,7 @@ Implementation
     begin
         mFreeSlots := mMaxSize;
         for i := 0 to mMaxSize - 1 do begin
-            mBuffer^[i] := nil;
+            mApplications[i] := nil;
         end;
     end;
 
@@ -54,7 +60,7 @@ Implementation
             exit;
         end;
 
-        mBuffer^[mMaxSize - mFreeSlots] := app;
+        mApplications[mMaxSize - mFreeSlots] := app;
         mFreeSlots := mFreeSlots - 1;
         addApplication := true;
     end;
@@ -68,11 +74,11 @@ Implementation
     var i: Integer;
     begin
         if (mFreeSlots <> mMaxSize) then begin
-            removeApplication := mBuffer^[0];
+            removeApplication := mApplications[0];
             for i := 0 to mMaxSize - 2 do begin
-                mBuffer^[i] := mBuffer^[i + 1];
+                mApplications[i] := mApplications[i + 1];
             end;
-            mBuffer^[mMaxSize - 1] := nil;
+            mApplications[mMaxSize - 1] := nil;
             mFreeSlots := mFreeSlots + 1;
         end else begin
             removeApplication := nil;

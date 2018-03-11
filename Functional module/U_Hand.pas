@@ -10,16 +10,19 @@ Interface
         public
             constructor init(intensity : Double; var timeBehaviour : PTimeBehaviour);
             destructor done;
-            procedure zeroData;
-            function getFinishTime : Double;
-            function canWork : Boolean;
-            procedure changeWorkStatus(status : Boolean);
+
             procedure generateFinishTime(acceptTime : Double);
+            function getFinishTime : Double;
+
+            procedure zeroData;
+            procedure changeWorkStatus(status : Boolean);
+
+            function canWork : Boolean;
 
         private
-            mCanWork : Boolean; {Flag = true if Buffer empty}
-            mFinishTime : Double; {The time of the last post of the application}
-            mIntensity : Double; {Intensity of the source (lambda)}
+            mCanWork       : Boolean;        {Flag = true if Buffer empty}
+            mFinishTime    : Double;         {The time of the last post of the application}
+            mIntensity     : Double;         {Intensity of the source (lambda)}
             mTimeBehaviour : PTimeBehaviour; {Law of time generation}        
     end;
 
@@ -29,10 +32,9 @@ Interface
 Implementation
     constructor Handler.init(intensity : Double; var timeBehaviour : PTimeBehaviour);
     begin
-        mCanWork := false;
-        mFinishTime := 0;
         mIntensity := intensity; 
         mTimeBehaviour := timeBehaviour;
+        zeroData;
     end;
 
     destructor Handler.done;
@@ -42,6 +44,7 @@ Implementation
 
     procedure Handler.zeroData;
     begin
+        mCanWork := false;
         mFinishTime := 0;
     end;
 

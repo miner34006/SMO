@@ -4,11 +4,12 @@
 Unit U_Appl;
 
 Interface
-    uses crt;
+    uses crt, U_Type;
 
     Type Application = object
         public
             constructor init(sourceNumber : Integer; timeOfCreation : Double);
+            
             function getSourceNumber : Integer;
             function getTimeOfCreation : Double;
 
@@ -18,8 +19,7 @@ Interface
     end;
 
     Type PApplication = ^Application;
-         AArray = array [0..0] of PApplication;
-         PAArray = ^AArray;
+         ApplicationArray = array [0..BUFFER_SIZE - 1] of PApplication;
 
 
 Implementation
