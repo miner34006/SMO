@@ -77,9 +77,7 @@ Implementation
     end;
 
     procedure FunctionalModule.createBuffer;
-    var bufferSize : Integer;
     begin
-        bufferSize := BUFFER_SIZE;
         mBuffer := new(PBuffer, init);
     end;
 
