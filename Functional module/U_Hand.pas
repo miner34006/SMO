@@ -11,7 +11,7 @@ Interface
             constructor init(intensity : Double; var timeBehaviour : PTimeBehaviour);
             destructor done;
 
-            procedure generateFinishTime(acceptTime : Double);
+            function generateFinishTime(acceptTime : Double): Double;
             function getFinishTime : Double;
 
             procedure zeroData;
@@ -63,8 +63,11 @@ Implementation
         getFinishTime := mFinishTime;
     end;
 
-    procedure Handler.generateFinishTime(acceptTime : Double);
+    function Handler.generateFinishTime(acceptTime : Double): Double;
+    var workingTime : Double;
     begin
-        mFinishTime := acceptTime + mTimeBehaviour^.countTime(mIntensity);
+        workingTime := mTimeBehaviour^.countTime(mIntensity);
+        mFinishTime := acceptTime + workingTime;
+        generateFinishTime := workingTime;
     end;
 end.

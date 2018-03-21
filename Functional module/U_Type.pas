@@ -8,6 +8,7 @@ Interface
 
     const NUMBER_OF_SOURCES = 2;
     const BUFFER_SIZE = 2;
+    const CHANGING_SOURCE = 1;
 
     Type SystemSettings = record
         KMIN           : Longint;
@@ -17,7 +18,8 @@ Interface
     end;
 
     Type SourceStatistics = record
-        timeInBuffer                 :  Double; 
+        timeInBuffer                 :  Double;
+        timeInHandler                :  Double; 
         numberOfReceivedApplications :  Longint;
         numberOfRejectedApplications :  Longint; 
     end;

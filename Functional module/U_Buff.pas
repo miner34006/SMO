@@ -4,11 +4,11 @@
 Unit U_Buff;
 
 Interface
-    uses crt, U_Appl, U_Type;
+    uses crt, U_Appl, U_Type, U_Sele;
 
     Type Buffer = object
         public
-            constructor init;
+            constructor init(selectionStrategy : PSelectionStrategy);
             destructor done;
 
             function addApplication(app : PApplication) : Boolean;
@@ -19,17 +19,19 @@ Interface
             procedure zeroData;
 
         private
-            mMaxSize      : Integer;          {Max buffer size}
-            mFreeSlots    : Integer;          {Number of free (empty) slots}
-            mApplications : ApplicationArray; {Array of PAplications}
+            mSelectionStrategy : PSelectionStrategy;
+            mMaxSize           : Integer;          {Max buffer size}
+            mFreeSlots         : Integer;          {Number of free (empty) slots}
+            mApplications      : ApplicationArray; {Array of PAplications}
     end;
 
     Type PBuffer = ^Buffer;
 
 
 Implementation
-    constructor Buffer.init;
+    constructor Buffer.init(selectionStrategy : PSelectionStrategy);
     begin
+        mSelectionStrategy := selectionStrategy;
         mMaxSize := BUFFER_SIZE;
         mFreeSlots := BUFFER_SIZE;
     end;
@@ -42,6 +44,7 @@ Implementation
                 dispose(mApplications[i]);
             end;
         end;
+        dispose(mSelectionStrategy);
     end;
 
     procedure Buffer.zeroData;
@@ -71,17 +74,8 @@ Implementation
     end;
 
     function Buffer.removeApplication : PApplication;
-    var i: Integer;
     begin
-        if (mFreeSlots <> mMaxSize) then begin
-            removeApplication := mApplications[0];
-            for i := 0 to mMaxSize - 2 do begin
-                mApplications[i] := mApplications[i + 1];
-            end;
-            mApplications[mMaxSize - 1] := nil;
-            mFreeSlots := mFreeSlots + 1;
-        end else begin
-            removeApplication := nil;
-        end;
+        removeApplication := mSelectionStrategy^.removeApplication(mApplications, mFreeSlots);
+        mFreeSlots := mFreeSlots + 1;
     end;
 end.

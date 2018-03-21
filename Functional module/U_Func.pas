@@ -4,7 +4,7 @@
 Unit U_Func;
 
 Interface
-    uses crt, U_Time, U_Sour, U_Buff, U_Hand, U_Appl, U_Prin, U_Type, U_Util;
+    uses crt, U_Time, U_Sour, U_Buff, U_Hand, U_Appl, U_Prin, U_Type, U_Util, U_Sele;
 
     Type FunctionalModule = object
         public
@@ -36,6 +36,7 @@ Interface
             procedure rejectApplication(sourceIndex : Integer);
             procedure receiveApplication(sourceIndex : Integer);
             procedure increeseTimeInBuffer(sourceIndex : Integer; time : Double);
+            procedure increeseTimeInHandler(sourceIndex : Integer; time : Double);
     end;
 
     Type PFunctionalModule = ^FunctionalModule;
@@ -77,8 +78,10 @@ Implementation
     end;
 
     procedure FunctionalModule.createBuffer;
+    var selectionStrategy : PSelectionStrategy;
     begin
-        mBuffer := new(PBuffer, init);
+        selectionStrategy := new(PNonPrioritySelection, init);
+        mBuffer := new(PBuffer, init(selectionStrategy));
     end;
 
     procedure FunctionalModule.createAppliannce;
@@ -98,8 +101,9 @@ Implementation
         intensity := mSettings.minIntensity;
         while intensity < mSettings.maxIntensity + mSettings.deltaIntensity do begin
 
-            mSources[0]^.setIntensity(intensity);
+            mSources[CHANGING_SOURCE - 1]^.setIntensity(intensity);
 
+            {FIRST POST APPLICATION SECTION}
             mSources[0]^.postApplication;
             mSources[1]^.postApplication;
 
@@ -108,6 +112,7 @@ Implementation
                 doOneClockCycle;
             end;
 
+            {COUNT ITERATION RESULTS SECTION}
             probabilityOfFailure := countProbabilityOfFailure(mIterarionStatistics);
             averageAppsInBuffer := countAverageAppsInBuffer(0, mIterarionStatistics);
             averageTimeInBuffer1 := countAverageTimeInBuffer(0, mIterarionStatistics);
@@ -162,10 +167,10 @@ Implementation
             if app^.getTimeOfCreation < mHandler^.getFinishTime then begin
                 {Application was waiting Handler in Buffer}
                 increeseTimeInBuffer(app^.getSourceNumber, mHandler^.getFinishTime - app^.getTimeOfCreation);
-                mHandler^.generateFinishTime(mHandler^.getFinishTime);
+                increeseTimeInHandler(app^.getSourceNumber, mHandler^.generateFinishTime(mHandler^.getFinishTime));
             end else begin
                 {Application was not waiting Handler in Buffer}
-                mHandler^.generateFinishTime(app^.getTimeOfCreation);
+                increeseTimeInHandler(app^.getSourceNumber, mHandler^.generateFinishTime(app^.getTimeOfCreation));
             end;
             dispose(app);
         end else begin
@@ -210,6 +215,7 @@ Implementation
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
             mSources[i]^.zeroData;
             mIterarionStatistics[i].timeInBuffer := 0;
+            mIterarionStatistics[i].timeInHandler := 0;
             mIterarionStatistics[i].numberOfReceivedApplications := 0;
             mIterarionStatistics[i].numberOfRejectedApplications := 0;
         end;
@@ -234,5 +240,10 @@ Implementation
     procedure FunctionalModule.increeseTimeInBuffer(sourceIndex : Integer; time : Double);
     begin
         mIterarionStatistics[sourceIndex].timeInBuffer := mIterarionStatistics[sourceIndex].timeInBuffer + time;
+    end;
+
+    procedure FunctionalModule.increeseTimeInHandler(sourceIndex : Integer; time : Double);
+    begin
+        mIterarionStatistics[sourceIndex].timeInHandler := mIterarionStatistics[sourceIndex].timeInHandler + time;
     end;
 end.
