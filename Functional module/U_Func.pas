@@ -99,6 +99,7 @@ Implementation
 
     procedure FunctionalModule.start;
     var intensity, probabilityOfFailure, averageAppsInBuffer, averageTimeInBuffer1,averageTimeInBuffer2 : double;
+        i : Integer;
     begin
         mPrinter^.printSystemSettings(mSettings);
 
@@ -106,12 +107,11 @@ Implementation
         while intensity < mSettings.maxIntensity + mSettings.deltaIntensity do begin
 
             mSources[CHANGING_SOURCE - 1]^.setIntensity(intensity);
+            for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+                mSources[i]^.postApplication;
+            end;
 
-            mSources[0]^.postApplication;
-            mSources[1]^.postApplication;
-
-            while (getNumberOfGeneratedApplications(0) < mSettings.KMIN) or 
-                  (getNumberOfGeneratedApplications(1) < mSettings.KMIN) do begin
+            while (not allSourcesHaveGeneratedKmin) do begin
                 doOneClockCycle;
             end;
 
@@ -126,6 +126,19 @@ Implementation
             zeroData;
             intensity := intensity + mSettings.deltaIntensity;
         end;
+    end;
+
+    procedure FunctionalModule.allSourcesHaveGeneratedKmin;
+    var i : Integer;
+    begin
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            if (getNumberOfGeneratedApplications(i) < mSettings.KMIN) then begin
+                allSourcesHaveGeneratedKmin := false;
+                exit;
+            end;
+        end;
+
+        allSourcesHaveGeneratedKmin := true;
     end;
 
     procedure FunctionalModule.doOneClockCycle;
