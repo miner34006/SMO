@@ -38,10 +38,10 @@ Implementation
                                             averageTimeInBuffer2, averageAppsInBuffer: Double);
     begin
         writeln(mOutput, 'Lambda = ', intensity:5:1);
-        writeln(mOutput, '    * Probability Of Failure (1st+2nd)     = ', probabilityOfFailure:8:3);
-        writeln(mOutput, '    * Average wating time (1st source)     = ', averageTimeInBuffer1:8:3);
-        writeln(mOutput, '    * Average wating time (2nd source)     = ', averageTimeInBuffer2:8:3);
-        writeln(mOutput, '    * Average apps (1st source) in Buffer  = ', averageAppsInBuffer:8:3);
+        writeln(mOutput, '    * Probability Of Failure (2 source)     = ', probabilityOfFailure:8:3);
+        writeln(mOutput, '    * Average wating time (1 source)     = ', averageTimeInBuffer1:8:3);
+        writeln(mOutput, '    * Average wating time (2 source)     = ', averageTimeInBuffer2:8:3);
+        writeln(mOutput, '    * Average apps (1 source) in Buffer  = ', averageAppsInBuffer:8:3);
         writeln(mOutput, '');
     end;
 

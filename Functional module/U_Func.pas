@@ -117,8 +117,8 @@ Implementation
 
             probabilityOfFailure := countProbabilityOfFailure(1, mIterarionStatistics);
             averageAppsInBuffer := countAverageAppsInBuffer(0, mIterarionStatistics);
-            averageTimeInBuffer1 := countAverageTimeInBuffer(0, mIterarionStatistics);
-            averageTimeInBuffer2 := countAverageTimeInBuffer(1, mIterarionStatistics);
+            averageTimeInBuffer1 := countAverageWaitingTime(0, mIterarionStatistics);
+            averageTimeInBuffer2 := countAverageWaitingTime(1, mIterarionStatistics);
         
             mPrinter^.printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1,
                                 averageTimeInBuffer2, averageAppsInBuffer);
@@ -142,7 +142,8 @@ Implementation
 
     procedure FunctionalModule.handleCreationOfNewApplication(sourceIndex : Integer);
     var hasAdded: Boolean;
-        app : PApplication;
+        app : PApplication
+        i : Integer;
     begin
         app := new(PApplication, init(sourceIndex, mSources[sourceIndex]^.getPostTime));
 

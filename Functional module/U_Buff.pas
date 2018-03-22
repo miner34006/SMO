@@ -13,6 +13,7 @@ Interface
 
             function addApplication(app : PApplication) : Boolean;
             function removeApplication : PApplication;
+            function getNumberOfApps(sourceIndex : Integer): Integer;
 
             function empty: Boolean;
 
@@ -66,6 +67,18 @@ Implementation
         mApplications[mMaxSize - mFreeSlots] := app;
         mFreeSlots := mFreeSlots - 1;
         addApplication := true;
+    end;
+
+    function Buffer.getNumberOfApps(sourceIndex : Integer): Integer;
+    var i, appsCount: Integer;
+    begin
+        appsCount := 0;
+        for i := 0 to BUFFER_SIZE - 1 - mFreeSlots do begin
+            if (mApplications[i]^.getSourceNumber = sourceIndex) then begin
+                Inc(appsCount);
+            end;
+        end;
+        getNumberOfApps := appsCount;
     end;
 
     function Buffer.empty: Boolean;
