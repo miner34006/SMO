@@ -10,6 +10,8 @@ Interface
     const BUFFER_SIZE = 2;
     const CHANGING_SOURCE = 1;
 
+    Type DoubleArray = array[0..NUMBER_OF_SOURCES - 1] of Double;
+
     Type SystemSettings = record
         KMIN           : Longint;
         minIntensity   : Double;
@@ -18,10 +20,14 @@ Interface
     end;
 
     Type SourceStatistics = record
-        timeInBuffer                 :  Double;
-        timeInHandler                :  Double; 
-        numberOfReceivedApplications :  Longint;
-        numberOfRejectedApplications :  Longint; 
+        timeInBuffer                 : Double;
+        timeInHandler                : Double;
+
+        numReceivedFromSource        : Longint;
+        numReceivedFromBuffer        : Longint;
+        numRejected                  : Longint;
+        
+        appsInBuffer                 : Longint;
     end;
 
     Type IterarionStatistics = array [0..NUMBER_OF_SOURCES - 1] of SourceStatistics;

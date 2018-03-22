@@ -6,42 +6,37 @@ Unit U_Util;
 Interface
     uses crt, U_Type;
 
-    function countProbabilityOfFailure(statistics : IterarionStatistics) : Double;
+    function countProbabilityOfFailure(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
     function countAverageAppsInBuffer(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
-    function countAverageTimeInBuffer(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
-
+    function countAverageWaitingTime(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
 
 Implementation
-    function countProbabilityOfFailure(statistics : IterarionStatistics) : Double;
-    var totalReceived, totalRejected, i : Longint;
+    function countProbabilityOfFailure(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
+    var totalApplications : Longint;
     begin
-        totalReceived := 0;
-        totalRejected := 0;
+        totalApplications := statistics[sourceIndex].numRejected +
+            statistics[sourceIndex].numReceivedFromSource + statistics[sourceIndex].numReceivedFromBuffer;
 
-        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
-            totalRejected := totalRejected + statistics[i].numberOfRejectedApplications;
-            totalReceived := totalReceived + statistics[i].numberOfReceivedApplications;
-        end;
-        countProbabilityOfFailure := totalRejected / (totalRejected + totalReceived);
+        countProbabilityOfFailure := statistics[sourceIndex].numRejected / totalApplications;
     end;
 
-    function countAverageAppsInBuffer(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
-    var totalNumberOfReceivedApplications: Longint;
+    function countAverageappsInBuffer(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
+    var totalApps: Longint;
         i : Integer;
     begin
-        totalNumberOfReceivedApplications := 0;
+        totalApps := 0;
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
-            totalNumberOfReceivedApplications := totalNumberOfReceivedApplications +
-                                                    statistics[i].numberOfReceivedApplications;
+            totalApps := totalApps + statistics[i].numReceivedFromBuffer + 
+                statistics[i].numReceivedFromSource + 
+                statistics[i].numRejected;
         end;
 
-        countAverageAppsInBuffer := statistics[sourceIndex].numberOfReceivedApplications / 
-                                        totalNumberOfReceivedApplications
+        countAverageappsInBuffer := statistics[sourceIndex].appsInBuffer / totalApps
     end;
 
-    function countAverageTimeInBuffer(sourceIndex : Integer; statistics : IterarionStatistics): Double;
+    function countAverageWaitingTime(sourceIndex : Integer; statistics : IterarionStatistics): Double;
     begin
-        countAverageTimeInBuffer := statistics[sourceIndex].timeInBuffer /
-                                        statistics[sourceIndex].numberOfReceivedApplications;
+        countAverageWaitingTime := statistics[sourceIndex].timeInBuffer /
+            statistics[sourceIndex].numReceivedFromBuffer;
     end;
 end.

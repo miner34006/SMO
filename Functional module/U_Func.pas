@@ -23,9 +23,10 @@ Interface
             
             procedure createSources;
             procedure createBuffer;
-            procedure createAppliannce;
+            procedure createHandler;
 
-            function getTheEarliestEvent : Integer;
+            function getEarliestEvent : Integer;
+            function getEarliestSource: Integer;
             function getNumberOfGeneratedApplications(sourceIndex : Integer) : Longint;
 
             procedure handleCreationOfNewApplication(sourceIndex : Integer);
@@ -34,9 +35,12 @@ Interface
             procedure zeroData;
 
             procedure rejectApplication(sourceIndex : Integer);
-            procedure receiveApplication(sourceIndex : Integer);
+            procedure receiveFromBuffer(sourceIndex : Integer);
+            procedure receiveFromSource(sourceIndex : Integer);
+            
             procedure increeseTimeInBuffer(sourceIndex : Integer; time : Double);
             procedure increeseTimeInHandler(sourceIndex : Integer; time : Double);
+            procedure increeseAppsInBuffer(sourceIndex : Integer; num : Integer);
     end;
 
     Type PFunctionalModule = ^FunctionalModule;
@@ -50,7 +54,7 @@ Implementation
 
         createSources;
         createBuffer;
-        createAppliannce;
+        createHandler;
     end;
 
     destructor FunctionalModule.done;
@@ -84,7 +88,7 @@ Implementation
         mBuffer := new(PBuffer, init(selectionStrategy));
     end;
 
-    procedure FunctionalModule.createAppliannce;
+    procedure FunctionalModule.createHandler;
     var intensity : Double;
         timeBehaviour : PTimeBehaviour;
     begin
@@ -103,7 +107,6 @@ Implementation
 
             mSources[CHANGING_SOURCE - 1]^.setIntensity(intensity);
 
-            {FIRST POST APPLICATION SECTION}
             mSources[0]^.postApplication;
             mSources[1]^.postApplication;
 
@@ -112,8 +115,7 @@ Implementation
                 doOneClockCycle;
             end;
 
-            {COUNT ITERATION RESULTS SECTION}
-            probabilityOfFailure := countProbabilityOfFailure(mIterarionStatistics);
+            probabilityOfFailure := countProbabilityOfFailure(1, mIterarionStatistics);
             averageAppsInBuffer := countAverageAppsInBuffer(0, mIterarionStatistics);
             averageTimeInBuffer1 := countAverageTimeInBuffer(0, mIterarionStatistics);
             averageTimeInBuffer2 := countAverageTimeInBuffer(1, mIterarionStatistics);
@@ -128,16 +130,12 @@ Implementation
 
     procedure FunctionalModule.doOneClockCycle;
     var earliestEvent : Integer;
-        hasAdded : Boolean;
-        app : PApplication;
     begin
-        earliestEvent := getTheEarliestEvent;
+        earliestEvent := getEarliestEvent;
 
         if (earliestEvent <> -1) then begin
-            {One of the sources has made the application}
             handleCreationOfNewApplication(earliestEvent);
         end else begin
-            {The Handler finished work}
             handleEndOfHandlerWork;
         end;
     end;
@@ -150,61 +148,71 @@ Implementation
 
         hasAdded := mBuffer^.addApplication(app);
         if (hasAdded = false) then begin
-            {There is not enough space in Buffer(has not add the application)}
             rejectApplication(sourceIndex);
             dispose(app);
         end;
         mSources[sourceIndex]^.postApplication;
-        mHandler^.changeWorkStatus(true);
+
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            increeseAppsInBuffer(i, mBuffer^.getNumberOfApps(i));
+        end;
     end;
 
     procedure FunctionalModule.handleEndOfHandlerWork;
     var app : PApplication;
+        earliestSource: Integer;
+        timeInHandler : Double;
     begin
         if (not mBuffer^.empty) then begin
             app := mBuffer^.removeApplication;
-            receiveApplication(app^.getSourceNumber);
-            if app^.getTimeOfCreation < mHandler^.getFinishTime then begin
-                {Application was waiting Handler in Buffer}
-                increeseTimeInBuffer(app^.getSourceNumber, mHandler^.getFinishTime - app^.getTimeOfCreation);
-                increeseTimeInHandler(app^.getSourceNumber, mHandler^.generateFinishTime(mHandler^.getFinishTime));
-            end else begin
-                {Application was not waiting Handler in Buffer}
-                increeseTimeInHandler(app^.getSourceNumber, mHandler^.generateFinishTime(app^.getTimeOfCreation));
-            end;
+            increeseTimeInBuffer(app^.getSourceNumber, mHandler^.getFinishTime - app^.getTimeOfCreation);
+            timeInHandler := mHandler^.generateFinishTime(mHandler^.getFinishTime);
+            increeseTimeInHandler(app^.getSourceNumber, timeInHandler);
+            receiveFromBuffer(app^.getSourceNumber);
             dispose(app);
+
         end else begin
-            mHandler^.changeWorkStatus(false);
+            earliestSource := getEarliestSource;
+            timeInHandler := mHandler^.generateFinishTime(mSources[earliestSource]^.getPostTime);
+            increeseTimeInHandler(earliestSource, timeInHandler);
+            receiveFromSource(earliestSource);
+            mSources[earliestSource]^.postApplication;
         end;
     end;
 
-    function FunctionalModule.getTheEarliestEvent;
-    var HandlerTime, minTime: Double;
+    function FunctionalModule.getEarliestEvent;
+    var HandlerTime, sourceTime: Double;
         i, eventMarker: Integer;
     begin
         {Shows the earliest event:
             * 0..N - one of the sources generate application (source number is eventMarker);
             * -1   - Applance ends it's work;}
 
-        eventMarker := -1;
+        eventMarker := getEarliestSource;
+        sourceTime := mSources[eventMarker]^.getPostTime;
+
+        if (mHandler^.getFinishTime < sourceTime) then begin
+            eventMarker := -1;
+        end;
+
+        getEarliestEvent := eventMarker;
+    end;
+
+    function FunctionalModule.getEarliestSource: Integer;
+    var minTime: Double;
+        i, sourceIndex: Integer;
+    begin
+        sourceIndex := -1;
         minTime := -1;
 
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
-            if (minTime = -1) or (minTime > mSources[i]^.getPostTime) then begin
+            if (minTime = -1) or (mSources[i]^.getPostTime < minTime) then begin
                 minTime := mSources[i]^.getPostTime;
-                eventMarker := i;
+                sourceIndex := i;
             end;
         end;
 
-        if (not mHandler^.canWork) then begin
-            {The Handler has not yet received processing orders}
-            getTheEarliestEvent := eventMarker;
-            exit;
-        end else if (minTime > mHandler^.getFinishTime) then begin
-            eventMarker := -1;
-       end;
-
-        getTheEarliestEvent := eventMarker;
+        getEarliestSource := sourceIndex;
     end;
 
     procedure FunctionalModule.zeroData;
@@ -216,25 +224,35 @@ Implementation
             mSources[i]^.zeroData;
             mIterarionStatistics[i].timeInBuffer := 0;
             mIterarionStatistics[i].timeInHandler := 0;
-            mIterarionStatistics[i].numberOfReceivedApplications := 0;
-            mIterarionStatistics[i].numberOfRejectedApplications := 0;
+
+            mIterarionStatistics[i].numReceivedFromBuffer := 0;
+            mIterarionStatistics[i].numReceivedFromSource := 0;
+            mIterarionStatistics[i].numRejected := 0;
+
+            mIterarionStatistics[i].appsInBuffer := 0;
         end;
     end;
 
     function FunctionalModule.getNumberOfGeneratedApplications(sourceIndex : Integer) : Longint;
     begin
-        getNumberOfGeneratedApplications := mIterarionStatistics[sourceIndex].numberOfRejectedApplications +
-                                                mIterarionStatistics[sourceIndex].numberOfReceivedApplications
+        getNumberOfGeneratedApplications := mIterarionStatistics[sourceIndex].numRejected +
+            mIterarionStatistics[sourceIndex].numReceivedFromSource +
+            mIterarionStatistics[sourceIndex].numReceivedFromBuffer
     end;
 
     procedure FunctionalModule.rejectApplication(sourceIndex : Integer);
     begin
-        Inc(mIterarionStatistics[sourceIndex].numberOfRejectedApplications);
+        Inc(mIterarionStatistics[sourceIndex].numRejected);
     end;
 
-    procedure FunctionalModule.receiveApplication(sourceIndex : Integer);
+    procedure FunctionalModule.receiveFromBuffer(sourceIndex : Integer);
     begin
-        Inc(mIterarionStatistics[sourceIndex].numberOfReceivedApplications);
+        Inc(mIterarionStatistics[sourceIndex].numReceivedFromBuffer);
+    end;
+
+    procedure FunctionalModule.receiveFromSource(sourceIndex : Integer);
+    begin
+        Inc(mIterarionStatistics[sourceIndex].numReceivedFromSource);
     end;
 
     procedure FunctionalModule.increeseTimeInBuffer(sourceIndex : Integer; time : Double);
@@ -245,5 +263,10 @@ Implementation
     procedure FunctionalModule.increeseTimeInHandler(sourceIndex : Integer; time : Double);
     begin
         mIterarionStatistics[sourceIndex].timeInHandler := mIterarionStatistics[sourceIndex].timeInHandler + time;
-    end;
+    end;    
+
+    procedure FunctionalModule.increeseAppsInBuffer(sourceIndex : Integer; num : Integer);
+    begin
+        mIterarionStatistics[sourceIndex].appsInBuffer := mIterarionStatistics[sourceIndex].appsInBuffer + num;
+    end;    
 end.

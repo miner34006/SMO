@@ -15,12 +15,8 @@ Interface
             function getFinishTime : Double;
 
             procedure zeroData;
-            procedure changeWorkStatus(status : Boolean);
-
-            function canWork : Boolean;
 
         private
-            mCanWork       : Boolean;        {Flag = true if Buffer empty}
             mFinishTime    : Double;         {The time of the last post of the application}
             mIntensity     : Double;         {Intensity of the source (lambda)}
             mTimeBehaviour : PTimeBehaviour; {Law of time generation}        
@@ -44,18 +40,7 @@ Implementation
 
     procedure Handler.zeroData;
     begin
-        mCanWork := false;
         mFinishTime := 0;
-    end;
-
-    function Handler.canWork: Boolean;
-    begin
-        canWork := mCanWork;
-    end;
-
-    procedure Handler.changeWorkStatus(status : Boolean);
-    begin
-        mCanWork := status;
     end;
 
     function Handler.getFinishTime: Double;
