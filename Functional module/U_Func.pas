@@ -27,6 +27,7 @@ Interface
 
             function getEarliestEvent : Integer;
             function getEarliestSource: Integer;
+            function FunctionalModule.allSourcesHaveGeneratedKmin: Boolean;
             function getNumberOfGeneratedApplications(sourceIndex : Integer) : Longint;
 
             procedure handleCreationOfNewApplication(sourceIndex : Integer);
@@ -128,7 +129,7 @@ Implementation
         end;
     end;
 
-    procedure FunctionalModule.allSourcesHaveGeneratedKmin;
+    function FunctionalModule.allSourcesHaveGeneratedKmin: Boolean;
     var i : Integer;
     begin
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
