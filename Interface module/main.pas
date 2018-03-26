@@ -711,7 +711,7 @@ var gd, gm : Integer;
 begin
     randomize;
     InitGraph(gd, gm, '');
-    settextstyle (2,0,5);
+    settextstyle (SmallFont, HorizDir, 5);
 
     settings.KMIN := 10000;
     settings.minIntensity := 0.5;

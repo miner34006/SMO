@@ -22,7 +22,6 @@ Interface
             mSources   : SourceArray;
             mBuffer    : PBuffer;
             mHandler   : PHandler;
-            mPrinter   : PPrinter;
 
             mIterarionStatistics : IterarionStatistics;
             
@@ -54,8 +53,6 @@ Implementation
     constructor FunctionalModule.init;
     var i : Integer;
     begin
-        mPrinter := new(PPrinter, init);
-
         createSources;
         createBuffer;
         createHandler;
@@ -69,7 +66,6 @@ Implementation
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
             dispose(mSources[i], done);
         end;
-        dispose(mPrinter, done);
         dispose(mBuffer, done);
         dispose(mHandler, done);
     end;
