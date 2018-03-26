@@ -2,6 +2,35 @@
 
 uses Graph, U_Type, crt;
 
+Type PSystemSettings = ^SystemSettings;
+
+Type GraphicModule = object
+    public
+        procedure printPoint(x, y : Integer);
+        procedure printSimulationCoords;
+        procedure eraseSimulationCoords;
+    private
+        {mData : SomeType;}
+end;
+
+Type PGraphicModule = ^GraphicModule;
+
+procedure GraphicModule.printSimulationCoords;
+begin
+    
+end;
+
+procedure GraphicModule.eraseSimulationCoords;
+begin
+    
+end;
+
+
+procedure GraphicModule.printPoint(x, y : Integer);
+begin
+    
+end;
+
 {******************************************************************}
 {*********************__Command Defenition__***********************}
 
@@ -15,8 +44,20 @@ Type HelpCommand = object(Command)
     procedure execute; virtual;
 end;
 
+Type SimulationCommand = object(Command)
+    public
+        constructor init(graph : PGraphicModule; func : PFunctionalModule; settings : PSystemSettings);
+        procedure execute; virtual;
+
+    private
+        mSettings : PSystemSettings;
+        mGraph : PGraphicModule;
+        mFunc : PFunctionalModule;
+end;
+
 Type PCommand = ^Command;
      PHelpCommand = ^HelpCommand;
+     PSimulationCommand = ^SimulationCommand;
 
 {******************************************************************}
 {*******************__Command Implementation__*********************}
@@ -54,6 +95,43 @@ begin
         key := readkey;
     end;
     clearDevice;
+end;
+
+constructor SimulationCommand.init(graph : PGraphicModule; func : PFunctionalModule; settings : PSystemSettings);
+begin
+    mSettings := settings;
+    mGraph := graph;
+    mFunc := func;
+end;
+
+procedure SimulationCommand.execute;
+var intensity : double;
+    iterationQ : Integer;
+begin
+    mGraph^.printSimulationCoords;
+    
+    iterationQ := 0;
+    intensity := mSettings^.minIntensity;
+    while intensity < mSettings^.maxIntensity + mSettings^.deltaIntensity do begin
+
+        mFunc^.setIntensity(intensity);
+        while (not mFunc^.allSourcesHaveGeneratedKmin) do begin
+            mFunc^.doIteration;
+            Inc(iterationQ);
+            if (iterationQ = 20) then begin
+                mGraph^.printPoint(x, y);
+                mGraph^.printPoint(x, y);
+                mGraph^.printPoint(x, y);
+                iterationQ := 0;
+            end;
+        end;
+
+        {Count iteration stats and add to mGraph^.mData}
+        
+        mFunc^.zeroData;
+        mGraph^.eraseSimulationCoords;
+        intensity := intensity + mSettings^.deltaIntensity;
+    end;
 end;
 
 {******************************************************************}
@@ -519,26 +597,56 @@ Type InterfaceModule = object
         destructor done;
 
         procedure run;
-        procedure draw;
+        procedure setMenu(men : PMenu);
 
     private
         mSettings : SystemSettings;
         mMenu : PCompositeMenu;
 end;
 
+Type PInterfaceModule = ^InterfaceModule;
+
 {*********************************************************************}
 {***************__InterfaceModule Implementation__********************}
 
-constructor InterfaceModule.init;
+constructor InterfaceModule.init; begin end;
+
+destructor InterfaceModule.done;
+begin
+    dispose(mMenu, done);
+end;
+
+procedure InterfaceModule.setMenu(men : PMenu);
+begin
+    mMenu := men;
+end;
+
+procedure InterfaceModule.run;
+begin
+    mMenu^.execute;
+end;
+{*********************************************************************}
+
+Type SMO = object
+        constructor init(settings : SystemSettings);
+        destructor done;
+    private
+        mSettings : SystemSettings;
+        mGraphicModule : PGraphicModule;
+        mInterfaceModule : PInterfaceModule;
+        mFunctionalModule : PFunctionalModule;
+end;
+
+constructor SMO.init(settings : SystemSettings);
 var mainMenu, settingsMenu, resultsMenu, simulationMenu: PCompositeMenu;
     simpleMenu : PMenu;
     com : PCommand;
     s : String;
 begin
-    mSettings.KMIN := 10;
-    mSettings.minIntensity := 2;
-    mSettings.maxIntensity := 3;
-    mSettings.deltaIntensity := 0.1;
+    mGraphicModule := new(PGraphicModule, init);
+    mInterfaceModule := new(PInterfaceModule, init);
+    mFunctionalModule := new(PFunctionalModule, init);
+    mSettings := settings;
 
     mainMenu := new(PHorizontalCompositeMenu, initXY(-15, 0, ''));
 
@@ -570,41 +678,44 @@ begin
     simpleMenu^.setCommand(com);
     settingsMenu^.add(simpleMenu);
 
+    {
     resultsMenu := new(PVerticalCompositeMenu, init('Results'));
     mainMenu^.add(resultsMenu);
     resultsMenu^.add(new(PMenu, init('Table', new(PCommand, init))));
     resultsMenu^.add(new(PMenu, init('Graph', new(PCommand, init))));
+    }
 
     simulationMenu := new(PVerticalCompositeMenu, init('Simulation'));
-    mainMenu^.add(new(PMenu, init('Simulation', new(PCommand, init))));
-    mMenu := mainMenu;
+    com := new(PSimulationCommand, init(mGraphicModule, mFunctionalModule, Addr(mSettings)));
+    mainMenu^.add(new(PMenu, init('Simulation', com)));
+
+    mInterfaceModule^.setMenu(mainMenu);
+    mInterfaceModule^.execute;
 end;
 
-destructor InterfaceModule.done;
+destructor SMO.done;
 begin
-    dispose(mMenu, done);
+    dispose(mGraphicModule);
+    dispose(mFunctionalModule);
+    dispose(mInterfaceModule);
 end;
-
-procedure InterfaceModule.run;
-begin
-    mMenu^.execute;
-end;
-
-procedure InterfaceModule.draw;
-begin
-    
-end;
-
-{*********************************************************************}
 
 var gd, gm : Integer;
-    IM : InterfaceModule;
+    smo_ : SMO;
+    settings : SystemSettings;
 begin
-    InitGraph(gd, gm, 'C:\BORLANDC\BGI');
+    randomize;
+    InitGraph(gd, gm, '');
     settextstyle (2,0,5);
-    IM.init;
-    IM.run;
-    IM.done;
+
+    settings.KMIN := 10000;
+    settings.minIntensity := 0.5;
+    settings.maxIntensity := 1.5;
+    settings.deltaIntensity := 0.1;
+
+    smo_.init(settings);
+    smo_.run;
+    smo_.done;
 
     CloseGraph;
 end.

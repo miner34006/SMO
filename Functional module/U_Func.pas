@@ -8,33 +8,36 @@ Interface
 
     Type FunctionalModule = object
         public
-            constructor init(settings : SystemSettings);
+            constructor init;
             destructor  done;
-            procedure start;
+            
+            function getStatistics: IterarionStatistics;
+            function allSourcesHaveGeneratedKmin: Boolean;
+
+            procedure setIntensity(intensity : Double);
+            procedure zeroData;
+            procedure doIteration;
         
         private
-            mSources   : SourceArray; {Sources of the SMO}
-            mBuffer    : PBuffer;     {SMO Buffer}
-            mHandler   : PHandler;    {SMO Handler}
+            mSources   : SourceArray;
+            mBuffer    : PBuffer;
+            mHandler   : PHandler;
             mPrinter   : PPrinter;
 
-            mSettings : SystemSettings;
             mIterarionStatistics : IterarionStatistics;
             
             procedure createSources;
             procedure createBuffer;
             procedure createHandler;
+            procedure postFirstApplications;
 
             function getEarliestEvent : Integer;
             function getEarliestSource: Integer;
-            function FunctionalModule.allSourcesHaveGeneratedKmin: Boolean;
+            
             function getNumberOfGeneratedApplications(sourceIndex : Integer) : Longint;
-
             procedure handleCreationOfNewApplication(sourceIndex : Integer);
             procedure handleEndOfHandlerWork;
-            procedure doOneClockCycle;
-            procedure zeroData;
-
+            
             procedure rejectApplication(sourceIndex : Integer);
             procedure receiveFromBuffer(sourceIndex : Integer);
             procedure receiveFromSource(sourceIndex : Integer);
@@ -48,14 +51,16 @@ Interface
 
 
 Implementation
-    constructor FunctionalModule.init(settings: SystemSettings);
+    constructor FunctionalModule.init;
+    var i : Integer;
     begin
-        mSettings := settings;
         mPrinter := new(PPrinter, init);
 
         createSources;
         createBuffer;
         createHandler;
+
+        postFirstApplications;
     end;
 
     destructor FunctionalModule.done;
@@ -67,6 +72,24 @@ Implementation
         dispose(mPrinter, done);
         dispose(mBuffer, done);
         dispose(mHandler, done);
+    end;
+
+    procedure FunctionalModule.postFirstApplications;
+    var i: Integer;
+    begin
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            mSources[i]^.postApplication;
+        end;
+    end;
+
+    procedure FunctionalModule.setIntensity(intensity : Double);
+    begin
+        mSources[CHANGING_SOURCE - 1]^.setIntensity(intensity);
+    end;
+
+    function FunctionalModule.getStatistics: IterarionStatistics;
+    begin
+        getStatistics := mIterarionStatistics;
     end;
 
     procedure FunctionalModule.createSources;
@@ -98,37 +121,6 @@ Implementation
         mHandler := new(PHandler, init(intensity, timeBehaviour));
     end;
 
-    procedure FunctionalModule.start;
-    var intensity, probabilityOfFailure, averageAppsInBuffer, averageTimeInBuffer1,averageTimeInBuffer2 : double;
-        i : Integer;
-    begin
-        mPrinter^.printSystemSettings(mSettings);
-
-        intensity := mSettings.minIntensity;
-        while intensity < mSettings.maxIntensity + mSettings.deltaIntensity do begin
-
-            mSources[CHANGING_SOURCE - 1]^.setIntensity(intensity);
-            for i := 0 to NUMBER_OF_SOURCES - 1 do begin
-                mSources[i]^.postApplication;
-            end;
-
-            while (not allSourcesHaveGeneratedKmin) do begin
-                doOneClockCycle;
-            end;
-
-            probabilityOfFailure := countProbabilityOfFailure(1, mIterarionStatistics);
-            averageAppsInBuffer := countAverageAppsInBuffer(0, mIterarionStatistics);
-            averageTimeInBuffer1 := countAverageWaitingTime(0, mIterarionStatistics);
-            averageTimeInBuffer2 := countAverageWaitingTime(1, mIterarionStatistics);
-        
-            mPrinter^.printIterationStats(intensity, probabilityOfFailure, averageTimeInBuffer1,
-                                averageTimeInBuffer2, averageAppsInBuffer);
-            
-            zeroData;
-            intensity := intensity + mSettings.deltaIntensity;
-        end;
-    end;
-
     function FunctionalModule.allSourcesHaveGeneratedKmin: Boolean;
     var i : Integer;
     begin
@@ -142,7 +134,7 @@ Implementation
         allSourcesHaveGeneratedKmin := true;
     end;
 
-    procedure FunctionalModule.doOneClockCycle;
+    procedure FunctionalModule.doIteration;
     var earliestEvent : Integer;
     begin
         earliestEvent := getEarliestEvent;
@@ -246,6 +238,7 @@ Implementation
 
             mIterarionStatistics[i].appsInBuffer := 0;
         end;
+        postFirstApplications;
     end;
 
     function FunctionalModule.getNumberOfGeneratedApplications(sourceIndex : Integer) : Longint;
