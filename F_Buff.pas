@@ -1,10 +1,10 @@
 {$N+} {$R-}
 
 {Buffer unit}
-Unit U_Buff;
+Unit F_Buff;
 
 Interface
-    uses crt, U_Appl, U_Type, U_Sele;
+    uses crt, F_Appl, Types, F_Sele;
 
     Type Buffer = object
         public

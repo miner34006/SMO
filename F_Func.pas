@@ -1,10 +1,10 @@
 {$N+}
 
 {FunctionalUnit unit}
-Unit U_Func;
+Unit F_Func;
 
 Interface
-    uses crt, U_Time, U_Sour, U_Buff, U_Hand, U_Appl, U_Prin, U_Type, U_Util, U_Sele;
+    uses crt, F_Time, F_Sour, F_Buff, F_Hand, F_Appl, F_Prin, Types, F_Util, F_Sele;
 
     Type FunctionalModule = object
         public

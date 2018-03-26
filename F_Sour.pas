@@ -1,10 +1,10 @@
 {$N+}
 
 {Source unit}
-Unit U_Sour;
+Unit F_Sour;
 
 Interface
-    uses crt, U_Type, U_Time;
+    uses crt, Types, F_Time;
 
     Type Source = object
         public

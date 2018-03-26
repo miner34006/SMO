@@ -1,7 +1,7 @@
 {$N+}
 
 {TimeBehaviour unit}
-Unit U_Time;
+Unit F_Time;
 
 Interface
     uses crt;

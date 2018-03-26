@@ -1,10 +1,10 @@
 {$N+} {$R-}
 
 {SelectionStrategy unit}
-Unit U_Sele;
+Unit F_Sele;
 
 Interface
-    uses crt, U_Appl, U_Type;
+    uses crt, F_Appl, Types;
 
     Type SelectionStrategy = object
         public

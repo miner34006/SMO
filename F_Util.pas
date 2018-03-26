@@ -1,10 +1,10 @@
 {$N+}
 
 {Utils unit}
-Unit U_Util;
+Unit F_Util;
 
 Interface
-    uses crt, U_Type;
+    uses crt, Types;
 
     function countProbabilityOfFailure(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
     function countAverageAppsInBuffer(sourceIndex : Integer; statistics : IterarionStatistics) : Double;

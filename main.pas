@@ -1,6 +1,6 @@
 {$N+} {$R-}
 
-uses Graph, U_Type, U_Func, crt;
+uses Graph, Types, F_Func, crt;
 
 Type GraphicModule = object
     public

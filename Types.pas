@@ -1,7 +1,7 @@
 {$N+}
 
 {Types unit}
-Unit U_Type;
+Unit Types;
 
 Interface
     uses crt;

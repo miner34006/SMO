@@ -1,10 +1,10 @@
 {$N+}
 
 {Application unit}
-Unit U_Appl;
+Unit F_Appl;
 
 Interface
-    uses crt, U_Type;
+    uses crt, Types;
 
     Type Application = object
         public
