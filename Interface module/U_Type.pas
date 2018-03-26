@@ -20,6 +20,7 @@ Interface
     end;
 
     Type PDouble = ^Double;
+         PSystemSettings = ^SystemSettings;
 
     Type SourceStatistics = record
         timeInBuffer                 : Double;

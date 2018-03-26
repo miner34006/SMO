@@ -1,11 +1,10 @@
 {$N+} {$R-}
 
-uses Graph, U_Type, crt;
-
-Type PSystemSettings = ^SystemSettings;
+uses Graph, U_Type, U_Func, crt;
 
 Type GraphicModule = object
     public
+
         procedure printPoint(x, y : Integer);
         procedure printSimulationCoords;
         procedure eraseSimulationCoords;
@@ -115,13 +114,13 @@ begin
     while intensity < mSettings^.maxIntensity + mSettings^.deltaIntensity do begin
 
         mFunc^.setIntensity(intensity);
-        while (not mFunc^.allSourcesHaveGeneratedKmin) do begin
+        while (not mFunc^.allSourcesHaveGeneratedKmin(mSettings^.Kmin)) do begin
             mFunc^.doIteration;
             Inc(iterationQ);
             if (iterationQ = 20) then begin
-                mGraph^.printPoint(x, y);
-                mGraph^.printPoint(x, y);
-                mGraph^.printPoint(x, y);
+                mGraph^.printPoint(0, 0);
+                mGraph^.printPoint(0, 0);
+                mGraph^.printPoint(0, 0);
                 iterationQ := 0;
             end;
         end;
@@ -601,7 +600,7 @@ Type InterfaceModule = object
 
     private
         mSettings : SystemSettings;
-        mMenu : PCompositeMenu;
+        mMenu : PMenu;
 end;
 
 Type PInterfaceModule = ^InterfaceModule;
@@ -630,6 +629,8 @@ end;
 Type SMO = object
         constructor init(settings : SystemSettings);
         destructor done;
+        procedure start;
+
     private
         mSettings : SystemSettings;
         mGraphicModule : PGraphicModule;
@@ -643,7 +644,7 @@ var mainMenu, settingsMenu, resultsMenu, simulationMenu: PCompositeMenu;
     com : PCommand;
     s : String;
 begin
-    mGraphicModule := new(PGraphicModule, init);
+    mGraphicModule := new(PGraphicModule);
     mInterfaceModule := new(PInterfaceModule, init);
     mFunctionalModule := new(PFunctionalModule, init);
     mSettings := settings;
@@ -690,7 +691,6 @@ begin
     mainMenu^.add(new(PMenu, init('Simulation', com)));
 
     mInterfaceModule^.setMenu(mainMenu);
-    mInterfaceModule^.execute;
 end;
 
 destructor SMO.done;
@@ -698,6 +698,11 @@ begin
     dispose(mGraphicModule);
     dispose(mFunctionalModule);
     dispose(mInterfaceModule);
+end;
+
+procedure SMO.start;
+begin
+    mInterfaceModule^.run;
 end;
 
 var gd, gm : Integer;
@@ -714,7 +719,7 @@ begin
     settings.deltaIntensity := 0.1;
 
     smo_.init(settings);
-    smo_.run;
+    smo_.start;
     smo_.done;
 
     CloseGraph;

@@ -11,8 +11,8 @@ Interface
             constructor init;
             destructor  done;
             
-            function getStatistics: IterarionStatistics;
-            function allSourcesHaveGeneratedKmin: Boolean;
+            {function getStatistics: IterarionStatistics;}
+            function allSourcesHaveGeneratedKmin(KMIN : Double): Boolean;
 
             procedure setIntensity(intensity : Double);
             procedure zeroData;
@@ -87,11 +87,13 @@ Implementation
         mSources[CHANGING_SOURCE - 1]^.setIntensity(intensity);
     end;
 
+    {
     function FunctionalModule.getStatistics: IterarionStatistics;
     begin
         getStatistics := mIterarionStatistics;
     end;
-
+    }
+    
     procedure FunctionalModule.createSources;
     var intensity, tay1, tay2 : Double;
         timeBehaviour : PTimeBehaviour;
@@ -121,11 +123,11 @@ Implementation
         mHandler := new(PHandler, init(intensity, timeBehaviour));
     end;
 
-    function FunctionalModule.allSourcesHaveGeneratedKmin: Boolean;
+    function FunctionalModule.allSourcesHaveGeneratedKmin(KMIN : Double): Boolean;
     var i : Integer;
     begin
         for i := 0 to NUMBER_OF_SOURCES - 1 do begin
-            if (getNumberOfGeneratedApplications(i) < mSettings.KMIN) then begin
+            if (getNumberOfGeneratedApplications(i) < KMIN) then begin
                 allSourcesHaveGeneratedKmin := false;
                 exit;
             end;
@@ -148,7 +150,7 @@ Implementation
 
     procedure FunctionalModule.handleCreationOfNewApplication(sourceIndex : Integer);
     var hasAdded: Boolean;
-        app : PApplication
+        app : PApplication;
         i : Integer;
     begin
         app := new(PApplication, init(sourceIndex, mSources[sourceIndex]^.getPostTime));
