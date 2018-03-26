@@ -19,6 +19,8 @@ Interface
         deltaIntensity : Double;
     end;
 
+    Type PDouble = ^Double;
+
     Type SourceStatistics = record
         timeInBuffer                 : Double;
         timeInHandler                : Double;
