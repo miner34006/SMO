@@ -1,34 +1,6 @@
 {$N+} {$R-}
 
-uses Graph, Types, F_Func, crt;
-
-Type GraphicModule = object
-    public
-
-        procedure printPoint(x, y : Integer);
-        procedure printSimulationCoords;
-        procedure eraseSimulationCoords;
-    private
-        {mData : SomeType;}
-end;
-
-Type PGraphicModule = ^GraphicModule;
-
-procedure GraphicModule.printSimulationCoords;
-begin
-    
-end;
-
-procedure GraphicModule.eraseSimulationCoords;
-begin
-    
-end;
-
-
-procedure GraphicModule.printPoint(x, y : Integer);
-begin
-    
-end;
+uses Graph, Types, F_Func, G_Graph, crt;
 
 {******************************************************************}
 {*********************__Command Defenition__***********************}
