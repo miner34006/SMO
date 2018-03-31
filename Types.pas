@@ -16,8 +16,16 @@ Interface
         KMIN           : Double;
         minIntensity   : Double;
         maxIntensity   : Double;
-        deltaIntensity : Double;
     end;
+
+    Type RResults = record
+        intensity : Double;
+        probabilityOfFailure : DoubleArray;
+        averageWaitingTime : DoubleArray;
+        averageAppsInBuffer : DoubleArray;
+    end;
+
+    Type ResultFile = file of RResults;
 
     Type PDouble = ^Double;
          PSystemSettings = ^SystemSettings;
@@ -34,6 +42,7 @@ Interface
     end;
 
     Type IterarionStatistics = array [0..NUMBER_OF_SOURCES - 1] of SourceStatistics;
+         PIterarionStatistics = ^IterarionStatistics;
 
 
 Implementation

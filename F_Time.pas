@@ -1,15 +1,13 @@
 {$N+}
 
-{TimeBehaviour unit}
 Unit F_Time;
 
 Interface
     uses crt;
 
     Type TimeBehaviour = object
-        public
-            constructor init;
-            function countTime(intensity : Double) : Double; virtual;
+        constructor init;
+        function countTime(intensity : Double) : Double; virtual;
     end;
 
     Type Regular = object(TimeBehaviour)
@@ -32,9 +30,7 @@ Interface
     end;
 
     Type Simple = object(TimeBehaviour)
-        public
-            constructor init;
-            function countTime(intensity : Double) : Double; virtual;
+        function countTime(intensity : Double) : Double; virtual;
     end;
 
     Type Erlang = object(TimeBehaviour)
@@ -43,7 +39,7 @@ Interface
             function countTime(intensity : Double) : Double; virtual;
 
         private
-            mOrder : Integer; {Order of Erlang}
+            mOrder : Integer;
     end;
 
     Type PTimeBehaviour = ^TimeBehaviour;
@@ -87,13 +83,10 @@ Implementation
     end;
 
 
-    constructor Simple.init; begin end;
-
     function Simple.countTime(intensity : Double) : Double;
     var timeDelta, rand: Double;
     begin
-        rand := (random(9) + 1) / 10;
-        timeDelta :=  -1.0 / intensity * ln(rand);
+        timeDelta :=  -1.0 / intensity * ln(random);
         countTime := timeDelta;
     end;
 

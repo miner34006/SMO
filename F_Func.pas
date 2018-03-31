@@ -1,48 +1,73 @@
 {$N+}
 
-{FunctionalUnit unit}
 Unit F_Func;
 
 Interface
-    uses crt, F_Time, F_Sour, F_Buff, F_Hand, F_Appl, F_Prin, Types, F_Util, F_Sele;
+    uses crt, F_Time, F_Sour, F_Buff, F_Hand, Types, F_Util;
 
     Type FunctionalModule = object
         public
             constructor init;
-            destructor  done;
+            destructor  done; 
             
-            {function getStatistics: IterarionStatistics;}
+            {Получение статистики}
+            function getStatistics: PIterarionStatistics;
+            {Кол-во сгенерированных заявок от i источника}
+            function getNumberOfGeneratedApplications(sourceIndex : Integer) : Longint; 
+            {Кол-во сгенерированных заявок}
+            function getAllNumberOfGeneratedApplications: Longint;
+            {Метод отвечает на вопрос: все ли источники сгенерировали KMIN заявок?}
             function allSourcesHaveGeneratedKmin(KMIN : Double): Boolean;
 
+            {Установка интенсивности для изменяющегося объекта (источник, прибор)}
             procedure setIntensity(intensity : Double);
+            {Обнуление всех полей}
             procedure zeroData;
+            {Одна итерация работы СМО}
             procedure doIteration;
         
         private
+            {Источники СМО}
             mSources   : SourceArray;
+            {Буффер СМО}
             mBuffer    : PBuffer;
+            {Прибор СМО}
             mHandler   : PHandler;
 
+            {Статистика работы СМО}
             mIterarionStatistics : IterarionStatistics;
             
+            {Создание источников}
             procedure createSources;
+            {Создание буфера}
             procedure createBuffer;
+            {Создание прибора}
             procedure createHandler;
+            {Генерация первых заявок от всех источников}
             procedure postFirstApplications;
 
+            {Получение первого события (генерация заявки или окончание работы прибора)}
             function getEarliestEvent : Integer;
+            {Получение номера источника, сгенерировавшего самую раннюю заявку}
             function getEarliestSource: Integer;
             
-            function getNumberOfGeneratedApplications(sourceIndex : Integer) : Longint;
+            {Обработка события "источник сгенерировал новую заявку"}
             procedure handleCreationOfNewApplication(sourceIndex : Integer);
+            {Обработка события "прибор закончил работу"}
             procedure handleEndOfHandlerWork;
             
+            {Отклонить заявку от i источника(учет статистики)}
             procedure rejectApplication(sourceIndex : Integer);
+            {Принять заявку от i источника из буфера(учет статистики)}
             procedure receiveFromBuffer(sourceIndex : Integer);
+            {Принять заявку от i источника из источника(учет статистики)}
             procedure receiveFromSource(sourceIndex : Integer);
             
+            {Увеличить время нахождения в буфере (учет статистики)}
             procedure increeseTimeInBuffer(sourceIndex : Integer; time : Double);
+            {Увеличить время нахождения в приборе (учет статистики)}
             procedure increeseTimeInHandler(sourceIndex : Integer; time : Double);
+            {Увеличить кол-во заявок в буфере (учет статистики)}
             procedure increeseAppsInBuffer(sourceIndex : Integer; num : Integer);
     end;
 
@@ -57,7 +82,7 @@ Implementation
         createBuffer;
         createHandler;
 
-        postFirstApplications;
+        zeroData;
     end;
 
     destructor FunctionalModule.done;
@@ -83,12 +108,10 @@ Implementation
         mSources[CHANGING_SOURCE - 1]^.setIntensity(intensity);
     end;
 
-    {
-    function FunctionalModule.getStatistics: IterarionStatistics;
+    function FunctionalModule.getStatistics: PIterarionStatistics;
     begin
-        getStatistics := mIterarionStatistics;
+        getStatistics := addr(mIterarionStatistics);
     end;
-    }
     
     procedure FunctionalModule.createSources;
     var intensity, tay1, tay2 : Double;
@@ -244,6 +267,18 @@ Implementation
         getNumberOfGeneratedApplications := mIterarionStatistics[sourceIndex].numRejected +
             mIterarionStatistics[sourceIndex].numReceivedFromSource +
             mIterarionStatistics[sourceIndex].numReceivedFromBuffer
+    end;
+
+    function FunctionalModule.getAllNumberOfGeneratedApplications: Longint;
+    var i : Integer;
+        count : Longint;
+    begin
+        count := 0;
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            count := count + getNumberOfGeneratedApplications(i);  
+        end;
+        
+        getAllNumberOfGeneratedApplications :=  count;
     end;
 
     procedure FunctionalModule.rejectApplication(sourceIndex : Integer);

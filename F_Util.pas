@@ -1,6 +1,5 @@
 {$N+}
 
-{Utils unit}
 Unit F_Util;
 
 Interface
@@ -17,7 +16,11 @@ Implementation
         totalApplications := statistics[sourceIndex].numRejected +
             statistics[sourceIndex].numReceivedFromSource + statistics[sourceIndex].numReceivedFromBuffer;
 
-        countProbabilityOfFailure := statistics[sourceIndex].numRejected / totalApplications;
+        if (totalApplications = 0) then begin
+            countProbabilityOfFailure := 0.0;
+        end else begin
+            countProbabilityOfFailure := statistics[sourceIndex].numRejected / totalApplications;
+        end;        
     end;
 
     function countAverageappsInBuffer(sourceIndex : Integer; statistics : IterarionStatistics) : Double;

@@ -1,6 +1,6 @@
 {$N+} {$R-}
 
-uses Graph, Types, F_Func, G_Graph, crt;
+uses Graph, Types, F_Func, G_MGraph, crt, F_Util;
 
 {******************************************************************}
 {*********************__Command Defenition__***********************}
@@ -26,9 +26,29 @@ Type SimulationCommand = object(Command)
         mFunc : PFunctionalModule;
 end;
 
+Type TableResultsCommand = object(Command)
+    public
+        constructor init(graph : PGraphicModule);
+        procedure execute; virtual;
+
+    private
+        mGraph : PGraphicModule;
+end;
+
+Type GraphResultCommand = object(Command)
+    public
+        constructor init(graph : PGraphicModule);
+        procedure execute; virtual;
+
+    private
+        mGraph : PGraphicModule;
+end;
+
 Type PCommand = ^Command;
      PHelpCommand = ^HelpCommand;
      PSimulationCommand = ^SimulationCommand;
+     PTableResultsCommand = ^TableResultsCommand;
+     PGraphResultCommand = ^GraphResultCommand;
 
 {******************************************************************}
 {*******************__Command Implementation__*********************}
@@ -76,33 +96,93 @@ begin
 end;
 
 procedure SimulationCommand.execute;
-var intensity : double;
-    iterationQ : Integer;
-begin
-    mGraph^.printSimulationCoords;
-    
-    iterationQ := 0;
-    intensity := mSettings^.minIntensity;
-    while intensity < mSettings^.maxIntensity + mSettings^.deltaIntensity do begin
+var intensity, probabilityOfFailure, deltaIntensity : double;
+    i : Integer;
+    stats : IterarionStatistics;
+    printStep : Integer;
+    results : RResults;
+    f : ResultFile;
+begin 
+    Assign(f,'RESULTS.dat');
+    Rewrite(f);
 
+    intensity := mSettings^.minIntensity;
+    deltaIntensity := (mSettings^.maxIntensity - mSettings^.minIntensity) / 10;
+
+    printStep := round(mSettings^.KMIN / 1000);
+    if printStep = 0 then begin
+        printStep := 1;
+    end;
+
+    while intensity < mSettings^.maxIntensity + deltaIntensity do begin
+        mGraph^.printSimulationCoords(mSettings^);
         mFunc^.setIntensity(intensity);
+
         while (not mFunc^.allSourcesHaveGeneratedKmin(mSettings^.Kmin)) do begin
             mFunc^.doIteration;
-            Inc(iterationQ);
-            if (iterationQ = 20) then begin
-                mGraph^.printPoint(0, 0);
-                mGraph^.printPoint(0, 0);
-                mGraph^.printPoint(0, 0);
-                iterationQ := 0;
+ 
+            if ((mFunc^.getAllNumberOfGeneratedApplications mod printStep) = 0) then begin
+                stats := mFunc^.getStatistics^;
+
+                probabilityOfFailure := countProbabilityOfFailure(0, stats);
+                mGraph^.printPoint((mFunc^.getNumberOfGeneratedApplications(0) div printStep), probabilityOfFailure, Blue);
+
+                probabilityOfFailure := countProbabilityOfFailure(1, stats);
+                mGraph^.printPoint((mFunc^.getNumberOfGeneratedApplications(1) div printStep), probabilityOfFailure, Red);
             end;
         end;
 
-        {Count iteration stats and add to mGraph^.mData}
+        stats := mFunc^.getStatistics^;
+        results.intensity := intensity;
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            results.probabilityOfFailure[i] := countProbabilityOfFailure(i, stats);
+            results.averageWaitingTime[i] := countAverageWaitingTime(i, stats);
+            results.averageAppsInBuffer[i] := countAverageAppsInBuffer(i, stats);
+        end;
+        write(f, results);
         
         mFunc^.zeroData;
-        mGraph^.eraseSimulationCoords;
-        intensity := intensity + mSettings^.deltaIntensity;
+        {TODO : реализовать отчистку у класса графика}
+        mGraph^.erase;
+        intensity := intensity + deltaIntensity;
     end;
+
+    close(f);
+end;
+
+constructor TableResultsCommand.init(graph : PGraphicModule);
+begin
+    mGraph := graph;
+end;
+
+procedure TableResultsCommand.execute;
+    var f : ResultFile;
+    rows, columns : Integer;
+begin
+    {TODO : реализовать отчистку по выходу из метода
+            + отчистка у класса Table }
+    mGraph^.erase;
+    rows := 12;
+    columns := 7;
+
+    Assign(f,'RESULTS.dat');
+    mGraph^.printTable(f, rows, columns);
+end;
+
+constructor GraphResultCommand.init(graph : PGraphicModule);
+begin
+    mGraph := graph;
+end;
+
+procedure GraphResultCommand.execute;
+    var f : ResultFile;
+    rows, columns : Integer;
+begin
+    {TODO : реализовать отчистку по выходу из метода
+            + отчистка у классов FunctionGraph}
+    mGraph^.erase;
+    Assign(f,'RESULTS.dat');
+    mGraph^.printResultsCoords(f);
 end;
 
 {******************************************************************}
@@ -645,18 +725,12 @@ begin
     simpleMenu^.setCommand(com);
     settingsMenu^.add(simpleMenu);
 
-    str(mSettings.deltaIntensity:1:1, s);
-    simpleMenu := new(PMenu, init('Delt ' + s, nil));
-    com := new(PSettingsCommand, init(Addr(mSettings.deltaIntensity), simpleMenu, 'Delt '));
-    simpleMenu^.setCommand(com);
-    settingsMenu^.add(simpleMenu);
-
-    {
     resultsMenu := new(PVerticalCompositeMenu, init('Results'));
     mainMenu^.add(resultsMenu);
-    resultsMenu^.add(new(PMenu, init('Table', new(PCommand, init))));
-    resultsMenu^.add(new(PMenu, init('Graph', new(PCommand, init))));
-    }
+    com := new(PTableResultsCommand, init(mGraphicModule));
+    resultsMenu^.add(new(PMenu, init('Table', com)));
+    com := new(PGraphResultCommand, init(mGraphicModule));
+    resultsMenu^.add(new(PMenu, init('Graph', com)));
 
     simulationMenu := new(PVerticalCompositeMenu, init('Simulation'));
     com := new(PSimulationCommand, init(mGraphicModule, mFunctionalModule, Addr(mSettings)));
@@ -688,7 +762,6 @@ begin
     settings.KMIN := 10000;
     settings.minIntensity := 0.5;
     settings.maxIntensity := 1.5;
-    settings.deltaIntensity := 0.1;
 
     smo_.init(settings);
     smo_.start;

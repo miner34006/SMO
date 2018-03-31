@@ -1,6 +1,5 @@
 {$N+}
 
-{Source unit}
 Unit F_Sour;
 
 Interface
@@ -19,9 +18,9 @@ Interface
             procedure postApplication;
 
         private
-            mPostTime      : Double;         {The time of the last post of the application}
-            mIntensity     : Double;         {Intensity of the source (lambda)}
-            mTimeBehaviour : PTimeBehaviour; {Law of time generation}
+            mPostTime      : Double;
+            mIntensity     : Double;
+            mTimeBehaviour : PTimeBehaviour;
     end;
 
     Type PSource = ^Source;

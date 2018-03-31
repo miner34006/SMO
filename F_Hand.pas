@@ -1,6 +1,5 @@
 {$N+}
 
-{Handler unit}
 Unit F_Hand;
 
 Interface
@@ -17,9 +16,9 @@ Interface
             procedure zeroData;
 
         private
-            mFinishTime    : Double;         {The time of the last post of the application}
-            mIntensity     : Double;         {Intensity of the source (lambda)}
-            mTimeBehaviour : PTimeBehaviour; {Law of time generation}        
+            mFinishTime    : Double; 
+            mIntensity     : Double;        
+            mTimeBehaviour : PTimeBehaviour;
     end;
 
     Type PHandler = ^Handler;
