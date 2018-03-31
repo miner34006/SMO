@@ -3,7 +3,7 @@
 Unit F_Func;
 
 Interface
-    uses crt, F_Time, F_Sour, F_Buff, F_Hand, Types, F_Util;
+    uses crt, F_Time, F_Sour, F_Buff, F_Hand, Types;
 
     Type FunctionalModule = object
         public
