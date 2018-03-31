@@ -5,19 +5,27 @@ Unit F_Hand;
 Interface
     uses crt, F_Time;
 
+    {Класс прибора}
     Type Handler = object
         public
             constructor init(intensity : Double; var timeBehaviour : PTimeBehaviour);
             destructor done;
 
+            {Генерация времени окончания обработки заявки}
             function generateFinishTime(acceptTime : Double): Double;
+            {Получение времени окончания работы прибора}
             function getFinishTime : Double;
-
+            {Установка интенсивности прибора}
+            procedure setIntensity(intensity : Double);
+            {Обнуление всех полей}
             procedure zeroData;
 
         private
+            {Время окончания работы прибора}
             mFinishTime    : Double; 
-            mIntensity     : Double;        
+            {Интенсивность прибора}
+            mIntensity     : Double;      
+            {Стратегия генерации времени}  
             mTimeBehaviour : PTimeBehaviour;
     end;
 
@@ -40,6 +48,11 @@ Implementation
     procedure Handler.zeroData;
     begin
         mFinishTime := 0;
+    end;
+
+    procedure Handler.setIntensity(intensity : Double);
+    begin
+        mIntensity := intensity;
     end;
 
     function Handler.getFinishTime: Double;

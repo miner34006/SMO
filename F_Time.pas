@@ -5,11 +5,14 @@ Unit F_Time;
 Interface
     uses crt;
 
+    {Стратегия генерации вермени (см. паттерн стратегия)}
     Type TimeBehaviour = object
         constructor init;
+        {Генерация временного интервала}
         function countTime(intensity : Double) : Double; virtual;
     end;
 
+    {Стратегия для регулярного потока}
     Type Regular = object(TimeBehaviour)
         public
             constructor init(tay : Double);
@@ -19,6 +22,7 @@ Interface
             mTay : Double; 
     end;
 
+    {Стратегия для равномерного потока}
     Type Uniform = object(TimeBehaviour)
         public
             constructor init(tay1, tay2 : Double);
@@ -29,10 +33,12 @@ Interface
             mTay2 : Double; 
     end;
 
+    {Стратегия для простейшего потока}
     Type Simple = object(TimeBehaviour)
         function countTime(intensity : Double) : Double; virtual;
     end;
 
+    {Стратегия для потока ерланга}
     Type Erlang = object(TimeBehaviour)
         public
             constructor init(order : Integer);

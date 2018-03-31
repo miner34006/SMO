@@ -8,15 +8,20 @@ Interface
     {******************************************************************}
     {**********************_Application def_***************************}
 
+    {Класс заявки}
     Type Application = object
         public
             constructor init(sourceNumber : Integer; timeOfCreation : Double);
             
+            {Получение номера источника, который сгенерировал заявку}
             function getSourceNumber : Integer;
+            {Получение времени генерации}
             function getTimeOfCreation : Double;
 
         private
+            {номера источника, который сгенерировал заявку}
             mSourceNumber : Integer;
+            {времени генерации}
             mTimeOfCreation : Double;
     end;
 
@@ -26,17 +31,21 @@ Interface
     {******************************************************************}
     {*******************_SelectionStrategy def_************************}
 
+    {Стратегия выборки заявки из буфера (см. паттерн стратегия)}
     Type SelectionStrategy = object
         constructor init;
         destructor done;
 
+        {Выборка заявки из массва с заявками}
         function removeApplication(var applications : ApplicationArray; freeSlots : Integer) : PApplication; virtual;
     end;
 
+    {Стратегия выборки заявки с приоритетом}
     Type PrioritySelection = object(SelectionStrategy)
         function removeApplication(var applications : ApplicationArray; freeSlots : Integer) : PApplication; virtual;
     end;
 
+    {Стратегия выборки заявки без приоритета}
     Type NonPrioritySelection = object(SelectionStrategy)
         function removeApplication(var applications : ApplicationArray; freeSlots : Integer) : PApplication; virtual;
     end;
@@ -48,23 +57,31 @@ Interface
     {******************************************************************}
     {************************_Buffer def_******************************}
 
+    {Класс буфера}
     Type Buffer = object
         public
             constructor init(selectionStrategy : PSelectionStrategy);
             destructor done;
 
+            {Добавление заявки в буфер}
             function addApplication(app : PApplication) : Boolean;
+            {Выборка заявки из буфера}
             function removeApplication : PApplication;
+            {Получение кол-ва заявок в буфере}
             function getNumberOfApps(sourceIndex : Integer): Integer;
-
+            {Отвечает на вопрос "Пустой ли буфер?"}
             function empty: Boolean;
-
+            {Обнуление всех полей}
             procedure zeroData;
 
         private
+            {Стратегия выборки заявок из буфера}
             mSelectionStrategy : PSelectionStrategy;
+            {Размер буфера}
             mMaxSize           : Integer;          
+            {Кол-во свободных слотов в буфере}
             mFreeSlots         : Integer;         
+            {Массив заявок, находящихся в буфере}
             mApplications      : ApplicationArray; 
     end;
 

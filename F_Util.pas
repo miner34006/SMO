@@ -5,8 +5,11 @@ Unit F_Util;
 Interface
     uses crt, Types;
 
+    {Подсчет вероятности отказа}
     function countProbabilityOfFailure(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
+    {Подсчет среднего кол-ва заявок в буфере}
     function countAverageAppsInBuffer(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
+    {Подсчет среднего времени ожидания}
     function countAverageWaitingTime(sourceIndex : Integer; statistics : IterarionStatistics) : Double;
 
 Implementation
