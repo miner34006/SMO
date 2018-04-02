@@ -1,6 +1,6 @@
 {$N+}
 
-Unit G_MGraph;
+Unit G_Graph;
 
 Interface
     uses crt, Graph, Types;
@@ -344,10 +344,10 @@ Implementation
     end;
 
     procedure GraphicModule.printResultsCoords(var f : ResultFile);
-    var i : Integer;
-        probabilityOfFailureGraph, AverageWaitingTimeGraph, averageAppsInBufferGraph: FunctionGraph;
+    var i, j: Integer;
+        graph1, graph2, graph3: FunctionGraph;
         results : RResults;
-        func1, func2, func3, func4 : Rfunc;
+        funcArray : array [0..NUMBER_OF_SOURCES - 1] of Rfunc;
         s: String;
     begin
         {$I-}
@@ -357,50 +357,53 @@ Implementation
             exit;
         end;
 
-        probabilityOfFailureGraph.init('LAM', 'P_OTK');
-        AverageWaitingTimeGraph.init('LAM', 'M_WAIT');
-        averageAppsInBufferGraph.init('LAM', 'K_APPS');
+        graph1.init('LAM', 'P_OTK');
+        graph2.init('LAM', 'M_WAIT');
+        graph3.init('LAM', 'K_APPS');
 
-        func1.funcName := '1Source';
-        func1.color := Red;
-
-        func2.funcName := '2Source';
-        func2.color := Blue;
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            str(i + 1, s);
+            funcArray[i].funcName := s + 'Source';
+            funcArray[i].color := i + 1;
+        end;
 
         for i := 0 to ARRAY_SIZE do begin
             read(f, results);
-            func1.xCoords[i] := results.intensity;
-            func1.yCoords[i] := results.probabilityOfFailure[0];
-            func2.xCoords[i] := results.intensity;
-            func2.yCoords[i] := results.probabilityOfFailure[1];
+            for j := 0 to NUMBER_OF_SOURCES - 1 do begin
+                funcArray[j].xCoords[i] := results.intensity;
+                funcArray[j].yCoords[i] := results.probabilityOfFailure[j];
+            end;
         end;
-        probabilityOfFailureGraph.addFunction(func1);
-        probabilityOfFailureGraph.addFunction(func2);
-        probabilityOfFailureGraph.draw(100, 230);
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            graph1.addFunction(funcArray[i]);
+        end;
+        graph1.draw(100, 230);
 
         seek(f, 0);
         for i := 0 to ARRAY_SIZE do begin
             read(f, results);
-            func1.xCoords[i] := results.intensity;
-            func1.yCoords[i] := results.averageWaitingTime[0];
-            func2.xCoords[i] := results.intensity;
-            func2.yCoords[i] := results.averageWaitingTime[1];
+            for j := 0 to NUMBER_OF_SOURCES - 1 do begin
+                funcArray[j].xCoords[i] := results.intensity;
+                funcArray[j].yCoords[i] := results.averageWaitingTime[j];
+            end;
         end;
-        AverageWaitingTimeGraph.addFunction(func1);
-        AverageWaitingTimeGraph.addFunction(func2);
-        AverageWaitingTimeGraph.draw(400, 230);
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            graph2.addFunction(funcArray[i]);
+        end;
+        graph2.draw(400, 230);
 
         seek(f, 0);
         for i := 0 to ARRAY_SIZE do begin
             read(f, results);
-            func1.xCoords[i] := results.intensity;
-            func1.yCoords[i] := results.averageAppsInBuffer[0];
-            func2.xCoords[i] := results.intensity;
-            func2.yCoords[i] := results.averageAppsInBuffer[1];
+            for j := 0 to NUMBER_OF_SOURCES - 1 do begin
+                funcArray[j].xCoords[i] := results.intensity;
+                funcArray[j].yCoords[i] := results.averageAppsInBuffer[j];
+            end;
         end;
-        averageAppsInBufferGraph.addFunction(func1);
-        averageAppsInBufferGraph.addFunction(func2);
-        averageAppsInBufferGraph.draw(100, 400);
+        for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+            graph3.addFunction(funcArray[i]);
+        end;
+        graph3.draw(100, 400);
 
         close(f);
         settextstyle (SmallFont, HorizDir, 5);

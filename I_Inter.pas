@@ -318,11 +318,10 @@ Implementation
                 if ((mFunc^.getAllNumberOfGeneratedApplications mod printStep) = 0) then begin
                     stats := mFunc^.getStatistics^;
 
-                    probabilityOfFailure := countProbabilityOfFailure(0, stats);
-                    mGraph^.printPoint((mFunc^.getNumberOfGeneratedApplications(0) div printStep), probabilityOfFailure, Blue);
-
-                    probabilityOfFailure := countProbabilityOfFailure(1, stats);
-                    mGraph^.printPoint((mFunc^.getNumberOfGeneratedApplications(1) div printStep), probabilityOfFailure, Red);
+                    for i := 0 to NUMBER_OF_SOURCES - 1 do begin
+                        probabilityOfFailure := countProbabilityOfFailure(i, stats);
+                        mGraph^.printPoint((mFunc^.getNumberOfGeneratedApplications(i) div printStep), probabilityOfFailure, i + 1);
+                    end;
                 end;
             end;
 
