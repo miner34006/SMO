@@ -182,9 +182,11 @@ Interface
             {Подготовка к выходы из меню}
             procedure prepareForExit;
 
-            {Отвечает на вопрос "Нажатая клавиша предназначена для перехода на следующее подменю?"}
+            {Отвечает на вопрос
+            "Клавиша предназначена для перехода на следующее подменю?"}
             function isNext(key : Char): Boolean; virtual;
-            {Отвечает на вопрос "Нажатая клавиша предназначена для перехода на предыдущее подменю?"}
+            {Отвечает на вопрос
+            "Клавиша предназначена для перехода на предыдущее подменю?"}
             function isPrevious(key : Char): Boolean; virtual;
 
             {Выбрать следующее подменю}
@@ -254,30 +256,20 @@ Implementation
 
     procedure HelpCommand.execute;
     var key: Char;
-        xTopLeft, yTopLeft, xBottomRight, yBottomRight, rowCount: Integer;
+        xTopLeft, yTopLeft : Integer;
     begin
-        rowCount := 4;
-
         xTopLeft := 0;
         yTopLeft := 40;
-        xBottomRight := 410;
-        yBottomRight := yTopLeft + (rowCount * 20) + 45;
-
-        setColor(White); 
-        Rectangle(xTopLeft, yTopLeft, xBottomRight, yBottomRight);
-        OutTextXY(xTopLeft + 10, yTopLeft + 15, 'Help Text Help Text Help Text Help Text Help Text');
-        OutTextXY(xTopLeft + 10, yTopLeft + 35, 'Help Text Help Text Help Text Help Text Help Text');
-        OutTextXY(xTopLeft + 10, yTopLeft + 55, 'Help Text Help Text Help Text Help Text Help Text');
-        OutTextXY(xTopLeft + 10, yTopLeft + 75, 'Help Text Help Text Help Text Help Text Help Text');
-
-        setColor(Black); 
-        SetFillStyle(SolidFill, LightGreen);
-        bar(xTopLeft + 10, yTopLeft + (rowCount * 20) + 15, 
-            xTopLeft + textWidth('Close') + 20, yTopLeft + rowCount * 20 + 25 + TextHeight('Close'));
-        OutTextXY(xTopLeft + 15, yTopLeft + rowCount * 20 + 20, 'Close');
+        
+        setColor(White);
+        OutTextXY(xTopLeft + 10, yTopLeft + 15, 'Running the program you will see the main menu of the system.');
+        OutTextXY(xTopLeft + 10, yTopLeft + 35, 'Controlled by arrows. To activate the menu, go to the appropriate');
+        OutTextXY(xTopLeft + 10, yTopLeft + 55, 'menu and press Enter. To return to the higher level (from the');
+        OutTextXY(xTopLeft + 10, yTopLeft + 75, 'submenu to the main menu, press the BackSpace key). For more information,');
+        OutTextXY(xTopLeft + 10, yTopLeft + 95, 'refer to the Readme.doc file.');
 
         key := readkey;
-        while (key <> #13) do begin
+        while (key <> #8) do begin
             key := readkey;
         end;
         clearDevice;
