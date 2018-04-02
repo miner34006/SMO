@@ -323,21 +323,20 @@ Implementation
             read(f, results);
 
             columnCenterY := columnCenterY + oneRowHeight;
+            for j := 0 to NUMBER_OF_SOURCES - 1 do
+            begin
+                str(results.intensity:1:2, s);
+                outTextXY(firstColumnCenterX + oneColumnWidth * 0, columnCenterY, s);
 
-            str(results.intensity:1:2, s);
-            outTextXY(firstColumnCenterX + oneColumnWidth * 0, columnCenterY, s);
-            str(results.probabilityOfFailure[0]:1:2, s);
-            outTextXY(firstColumnCenterX + oneColumnWidth * 1, columnCenterY, s);
-            str(results.probabilityOfFailure[1]:1:2, s);
-            outTextXY(firstColumnCenterX + oneColumnWidth * 2, columnCenterY, s);
-            str(results.averageWaitingTime[0]:1:2, s);
-            outTextXY(firstColumnCenterX + oneColumnWidth * 3, columnCenterY, s);
-            str(results.averageWaitingTime[1]:1:2, s);
-            outTextXY(firstColumnCenterX + oneColumnWidth * 4, columnCenterY, s);
-            str(results.averageAppsInBuffer[0]:1:2, s);
-            outTextXY(firstColumnCenterX + oneColumnWidth * 5, columnCenterY, s);
-            str(results.averageAppsInBuffer[1]:1:2, s);
-            outTextXY(firstColumnCenterX + oneColumnWidth * 6, columnCenterY, s);
+                str(results.probabilityOfFailure[j]:1:2, s);
+                outTextXY(firstColumnCenterX + oneColumnWidth * (j + 1), columnCenterY, s);
+
+                str(results.averageWaitingTime[j]:1:2, s);
+                outTextXY(firstColumnCenterX + oneColumnWidth * (j + 3), columnCenterY, s);
+
+                str(results.averageAppsInBuffer[j]:1:2, s);
+                outTextXY(firstColumnCenterX + oneColumnWidth * (j + 5), columnCenterY, s);
+            end;
         end;
 
         close(f);
