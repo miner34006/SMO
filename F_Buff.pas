@@ -50,9 +50,14 @@ Interface
         function removeApplication(var applications : ApplicationArray; freeSlots : Integer) : PApplication; virtual;
     end;
 
+    Type FifoSelection = object(SelectionStrategy)
+        function removeApplication(var applications : ApplicationArray; freeSlots : Integer) : PApplication; virtual;
+    end;
+
     Type PSelectionStrategy = ^SelectionStrategy;
          PPrioritySelection = ^PrioritySelection;
          PNonPrioritySelection = ^NonPrioritySelection;
+         PFifoSelection = ^FifoSelection;
 
     {******************************************************************}
     {************************_Buffer def_******************************}
@@ -209,6 +214,25 @@ Implementation
     begin
         removeApplication := applications[0];
         for i := 0 to BUFFER_SIZE - 2 do begin
+            applications[i] := applications[i + 1];
+        end;
+        applications[BUFFER_SIZE - 1] := nil;
+    end;
+
+    function FifoSelection.removeApplication(var applications : ApplicationArray; freeSlots : Integer) : PApplication;
+    var i, minTime, minTimeIndex : Integer;
+    begin
+        minTimeIndex := 0;
+        minTime := applications[0]^.getTimeOfCreation;
+
+        for i := 0 to BUFFER_SIZE - 1 - freeSlots do begin
+            if (applications[i]^.getTimeOfCreation < minTime) then begin
+                minTimeIndex := i;
+                minTime := applications[i]^.getTimeOfCreation;
+            end;
+        end;
+        removeApplication := applications[minTimeIndex];
+        for i := minTimeIndex to BUFFER_SIZE - 2 do begin
             applications[i] := applications[i + 1];
         end;
         applications[BUFFER_SIZE - 1] := nil;
