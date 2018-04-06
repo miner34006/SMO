@@ -85,7 +85,6 @@ var gd, gm : Integer;
     smo_ : SMO;
     settings : SystemSettings;
 begin
-    randomize;
     InitGraph(gd, gm, '');
     settextstyle (SmallFont, HorizDir, 5);
 

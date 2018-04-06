@@ -312,6 +312,8 @@ Implementation
             mGraph^.printSimulationCoords(mSettings^);
             mFunc^.setIntensity(intensity);
 
+            randomize;
+
             while (not mFunc^.allSourcesHaveGeneratedKmin(mSettings^.Kmin)) do begin
                 mFunc^.doIteration;
      
