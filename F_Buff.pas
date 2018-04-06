@@ -113,15 +113,15 @@ Implementation
         getTimeOfCreation := mTimeOfCreation;
     end;
 
+    {******************************************************************}
+    {************************_Buffer impl_*****************************}
+
     constructor Buffer.init(selectionStrategy : PSelectionStrategy);
     begin
         mSelectionStrategy := selectionStrategy;
         mMaxSize := BUFFER_SIZE;
         mFreeSlots := BUFFER_SIZE;
     end;
-
-    {******************************************************************}
-    {************************_Buffer impl_*****************************}
 
     destructor Buffer.done;
     var i : Integer;

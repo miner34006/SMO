@@ -323,8 +323,7 @@ Implementation
             read(f, results);
 
             columnCenterY := columnCenterY + oneRowHeight;
-            for j := 0 to NUMBER_OF_SOURCES - 1 do
-            begin
+            for j := 0 to NUMBER_OF_SOURCES - 1 do begin
                 str(results.intensity:1:2, s);
                 outTextXY(firstColumnCenterX + oneColumnWidth * 0, columnCenterY, s);
 
